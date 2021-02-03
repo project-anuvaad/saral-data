@@ -105,6 +105,13 @@ class ScanDetailsContainer extends Component {
 
     }
 
+    componentWillUnmount() {
+        // fix Warning: Can't perform a React state update on an unmounted component
+        this.setState = (state,callback)=>{
+            return;
+        };
+    }
+
 
     lastSevenDigit = (data) => {
         let digit = data.toString().substring(data.toString().length - 7)

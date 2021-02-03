@@ -32,29 +32,43 @@ class SelectDetailsContainer extends Component {
     }
 
     componentDidMount() {
-        
         const { navigation } = this.props
+
         navigation.addListener('didFocus', async payload => {
             BackHandler.addEventListener('hardwareBackPress', this.onBack)
-            let loginDetails = await getLoginData() 
-            if(loginDetails) {                
-                let classesArr = [...loginDetails.classInfo]
-                let classes = []
-                _.forEach(classesArr, (data, index) => {
-                    classes.push(data.className)
-                })  
-                
-
-                 this.setState({
-                     classList: classes,
-                     classesArr: classesArr,
-                     loginData: loginDetails
-                 })
+            if(!this.state.loginData) {
+                this.loadLoginDetails()
             }
         })
+
         this.willBlur = navigation.addListener('willBlur', payload =>
             BackHandler.removeEventListener('hardwareBackPress', this.onBack)
         );
+    }
+
+    componentWillUnmount() {
+        // fix Warning: Can't perform a React state update on an unmounted component
+        this.setState = (state,callback)=>{
+            return;
+        };
+    }
+
+    loadLoginDetails = async () => {
+        let loginDetails = await getLoginData() 
+
+        if(loginDetails) {                
+            let classesArr = [...loginDetails.classInfo]
+            let classes = []
+            _.forEach(classesArr, (data, index) => {
+                classes.push(data.className)
+            })  
+            
+             this.setState({
+                 classList: classes,
+                 classesArr: classesArr,
+                 loginData: loginDetails
+             })
+        }
     }
 
     onBack = () => {
@@ -97,6 +111,11 @@ class SelectDetailsContainer extends Component {
     
     render() {
         const { isLoading, iconShow, loaderText, classList, classesArr, loginData } = this.state;
+
+        if(!loginData) {
+            this.loadLoginDetails();
+        }
+
         return (
             <View style={styles.container}>
                     {/* <HeaderComponent
