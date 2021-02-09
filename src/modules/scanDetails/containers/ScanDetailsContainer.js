@@ -316,7 +316,7 @@ class ScanDetailsContainer extends Component {
             
             let filterOcrByExam = _.filter(resOcr, function (o) {
 
-                if (o.examCode == examCode) {
+                if (o.examCode.trim() == examCode.trim()) {
                     return o
                 }
             })
