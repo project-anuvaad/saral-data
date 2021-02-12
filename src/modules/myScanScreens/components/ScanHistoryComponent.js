@@ -73,7 +73,7 @@ class ScanHistoryComponent extends Component {
                 // exams = JSON.parse(JSON.stringify(groupStudentsMetaDataByClass[data.className][0].data.examInfo))
                 _.forEach(groupStudentsMetaDataByClass[data.className], function(studentsData){
                     _.forEach(studentsData.data.examInfo, function(o){                        
-                        if(o.examCode == data.testId) {
+                        if(o.examCode.trim() == data.testId.trim()) {
                             examsObj = {...o}
                         }
                     })
@@ -90,7 +90,7 @@ class ScanHistoryComponent extends Component {
              studentExamMetaData.push(examsObj, apkVersionId, apkVersion)
              let createdTime = new Date()
              let scanDataPayload = {
-                "examCode": data.testId,
+                "examCode": data.testId.trim(),
                 "examId": examsObj.examId,
                 "createdOn": createdTime,
                 "exams": JSON.stringify(exams),
@@ -175,7 +175,7 @@ class ScanHistoryComponent extends Component {
         let obj = {
             className: data.className,
             section: data.section,
-            examCode: data.testId,
+            examCode: data.testId.trim(),
             testDate: data.testDate,
             sessionId: data.sessionId,
             scanStatus: data.scanStatus

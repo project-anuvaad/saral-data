@@ -99,7 +99,7 @@ class MyScanComponent extends Component {
                             //     }
                             // })
                             if (fetchedSectionElement.length > 0) {
-                                if (fetchedSectionElement[0].examCode == response.examCode && fetchedSectionElement[0].Section.trim().toUpperCase() == response.section.trim().toUpperCase()) {
+                                if (fetchedSectionElement[0].examCode.trim() == response.examCode.trim() && fetchedSectionElement[0].Section.trim().toUpperCase() == response.section.trim().toUpperCase()) {
                                     _.forEach(selectedSection, (data) => {
                                         for (let i = 0; i < fetchedSectionElement[0].EntryCompletedStudents.length; i++) {
                                             if (data.student.aadhaarUID == fetchedSectionElement[0].EntryCompletedStudents[i].AadhaarUID) {
@@ -182,7 +182,7 @@ class MyScanComponent extends Component {
             let obj = {
                 className: response.className,
                 section: response.section,
-                testId: response.examCode,
+                testId: response.examCode.trim(),
                 testDate: response.testDate,
                 sessionId: response.sessionId,
                 scanStatus: status,

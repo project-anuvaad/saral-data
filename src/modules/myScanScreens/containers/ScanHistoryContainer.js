@@ -142,7 +142,7 @@ class ScanHistoryContainer extends Component {
         let response = filteredData.response
         let scanFilteredExamData = []
         _.forEach(scanData, (item) => {
-            if(item.exam_code == response.examCode) {
+            if(item.exam_code.trim() == response.examCode.trim()) {
                 scanFilteredExamData.push(item)
             }
         })
@@ -167,6 +167,8 @@ class ScanHistoryContainer extends Component {
     createCardData = async () => {
         const { scanData, loginData, studentsExamData, fetchedScanStatus } = this.state
         
+        const { filteredData } = this.props
+        let filteredDataRsp = filteredData.response
         if (loginData && studentsExamData) {
             let classes = [...loginData.classInfo]
             let students = _.filter(studentsExamData, function (o) {
@@ -219,7 +221,7 @@ class ScanHistoryContainer extends Component {
                                         let fetchedSectionElement = groupFetchedSectionByExam[sectionElement[0].section.trim().toUpperCase()]
                                         fetchedCount = fetchedSectionElement[0].EntryCompletedStudents.length
 
-                                        if (fetchedSectionElement[0].examCode == sectionElement[0].exam_code && fetchedSectionElement[0].Section.trim().toLowerCase() == sectionElement[0].section.trim().toLowerCase()) {
+                                        if (fetchedSectionElement[0].examCode.trim() == sectionElement[0].exam_code.trim() && fetchedSectionElement[0].Section.trim().toLowerCase() == sectionElement[0].section.trim().toLowerCase()) {
                                             _.forEach(sectionElement, (data) => {
                                                 for (let i = 0; i < fetchedSectionElement[0].EntryCompletedStudents.length; i++) {
                                                     if (data.student.aadhaarUID == fetchedSectionElement[0].EntryCompletedStudents[i].AadhaarUID) {
@@ -311,23 +313,10 @@ class ScanHistoryContainer extends Component {
                         let groupSectionByExam = _.groupBy(classElement, 'Section')
                         _.forEach(groupSectionByExam, (sectionElement) => {
                             let studentStrength = 0
-                            let examDate = ''
+                            let examDate = filteredDataRsp.testDate
                             _.forEach(groupStudentsByClass["Class-" + sectionElement[0].studyingClass], (item) => {
                                 if (item.section.trim().toLowerCase() == sectionElement[0].Section.trim().toLowerCase()) {
                                     studentStrength = item.data.studentsInfo.length
-                                    _.forEach(item.data.examInfo, (examData) => {
-                                        if (examData.examCode == sectionElement[0].examCode) {
-                                            let examDateArr = []
-                                            if (examData.examDate.includes('T')) {
-                                                examDateArr = examData.examDate.split('T')
-                                            }
-                                            else {
-                                                examDateArr.push(examData.examDate)
-                                            }
-                                            let examDateArrFormatted = examDateArr[0].split('-')
-                                            examDate = `${examDateArrFormatted[2]}-${examDateArrFormatted[1]}-${examDateArrFormatted[0]}`
-                                        }
-                                    })
                                 }
                             })
                             let saveCount = sectionElement[0].EntryCompletedStudents.length
@@ -371,9 +360,9 @@ class ScanHistoryContainer extends Component {
         let obj = {
             className: "Class-" + sectionElement[0].studyingClass,
             section: sectionElement[0].Section.trim(),
-            testId: sectionElement[0].examCode,
+            testId: sectionElement[0].examCode.trim(),
             testDate: examDate,
-            sessionId: sectionElement[0].examCode + '_' + uuid.v4(),
+            sessionId: sectionElement[0].examCode.trim() + '_' + uuid.v4(),
             scanStatus: status,
             saveStatus: saveCountStatus
         }
@@ -499,7 +488,7 @@ class ScanHistoryContainer extends Component {
             let obj = {
                 className: response.className,
                 section: response.section.trim(),
-                testId: response.examCode,
+                testId: response.examCode.trim(),
                 testDate: response.testDate,
                 sessionId: response.sessionId,
                 scanStatus: status,
@@ -539,7 +528,7 @@ class ScanHistoryContainer extends Component {
                         if (loginData) {
                             this.setState({
                                 isLoading: true,
-                                submittedExamCode: data.examCode,
+                                submittedExamCode: data.examCode.trim(),
                                 submittedClass: className,
                                 submittedSection: section,
                                 dataPayload: data,
