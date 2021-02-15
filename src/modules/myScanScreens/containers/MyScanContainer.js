@@ -306,7 +306,8 @@ const styles = {
 const mapStateToProps = (state) => {
     return {
         ocrProcessLocal: state.ocrProcessLocal,
-        ongoingScanDetails: state.ongoingScanDetails
+        ongoingScanDetails: state.ongoingScanDetails,
+        loginDataRes: state.loginData,
     }
 }
 

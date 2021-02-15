@@ -262,9 +262,28 @@ class MyScanComponent extends Component {
 
     render() {
         const { onGoingData } = this.state
+        const { loginDataRes } = this.props
         return (
 
             <View style={{ flex: 1 }}>
+                {(loginDataRes && loginDataRes.data) && 
+                    <Text 
+                        style={{ fontSize: AppTheme.FONT_SIZE_REGULAR, color: AppTheme.BLACK, fontWeight: 'bold',  paddingHorizontal: '5%', paddingVertical: '2%' }}
+                    >
+                        {Strings.school_name+' : '}
+                        <Text style={{ fontWeight: 'normal'}}>
+                            {loginDataRes.data.schoolInfo.school}
+                        </Text>
+                    </Text>}
+                {(loginDataRes && loginDataRes.data) && 
+                    <Text 
+                        style={{ fontSize: AppTheme.FONT_SIZE_REGULAR-3, color: AppTheme.BLACK, fontWeight: 'bold', paddingHorizontal: '5%', marginBottom: '2%' }}
+                    >
+                        {Strings.dise_code+' : '}
+                        <Text style={{ fontWeight: 'normal'}}>
+                            {loginDataRes.data.schoolInfo.schoolCode}
+                        </Text>
+                    </Text>}
 
                 <ScrollView
                     contentContainerStyle={{ backgroundColor: AppTheme.BACKGROUND_COLOR, paddingTop: '5%', paddingBottom: '35%' }}

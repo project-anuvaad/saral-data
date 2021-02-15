@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Alert, BackHandler } from 'react-native';
+import { View, Text, Alert, BackHandler } from 'react-native';
 import ScanDetailsComponent from '../components/ScanDetailsComponent';
 import Spinner from '../../common/components/loadingIndicator';
 import HeaderComponent from '../../common/components/HeaderComponent';
@@ -480,6 +480,7 @@ class ScanDetailsContainer extends Component {
             isLoading, edit, studentId, testDate, tabIndex, finalArray1, student_name, testIds, testId, summary, testDateErr, errTestId, totalMarks, securedMarks,
             popupVisible, defaultSelectedStuName, stuNameIndex, selectedStuName,  studentAadhaarArr
         } = this.state;
+        const { loginDataRes } = this.props
         // let headerTitle = summary ? Strings.summary_scanned_data : edit ? Strings.edit_scanned_data : Strings.verify_scanned_data
         let headerTitle = summary ? Strings.summary_scanned_data : Strings.verify_scanned_data
         return (
@@ -488,6 +489,24 @@ class ScanDetailsContainer extends Component {
                     title={headerTitle}
                     versionText={apkVersion}
                 />
+                {(loginDataRes && loginDataRes.data) && 
+                    <Text 
+                        style={{ fontSize: AppTheme.FONT_SIZE_REGULAR, color: AppTheme.BLACK, fontWeight: 'bold',  paddingHorizontal: '5%', paddingVertical: '2%' }}
+                    >
+                        {Strings.school_name+' : '}
+                        <Text style={{ fontWeight: 'normal'}}>
+                            {loginDataRes.data.schoolInfo.school}
+                        </Text>
+                    </Text>}
+                {(loginDataRes && loginDataRes.data) && 
+                    <Text 
+                        style={{ fontSize: AppTheme.FONT_SIZE_REGULAR-3, color: AppTheme.BLACK, fontWeight: 'bold', paddingHorizontal: '5%', marginBottom: '2%' }}
+                    >
+                        {Strings.dise_code+' : '}
+                        <Text style={{ fontWeight: 'normal'}}>
+                            {loginDataRes.data.schoolInfo.schoolCode}
+                        </Text>
+                    </Text>}
                 <ScanDetailsComponent
                     tabIndex={tabIndex}
                     tabClicked={this.tabClicked}
@@ -542,7 +561,8 @@ const mapStateToProps = (state) => {
         apiStatus: state.apiStatus,
         ocrProcessLocal: state.ocrProcessLocal,
         ongoingScanDetails: state.ongoingScanDetails,
-        studentsAndExamData: state.studentsAndExamData
+        studentsAndExamData: state.studentsAndExamData,
+        loginDataRes: state.loginData,
     }
 }
 

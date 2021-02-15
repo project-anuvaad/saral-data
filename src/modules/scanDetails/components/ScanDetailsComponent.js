@@ -75,7 +75,7 @@ class ScanDetailsComponent extends Component {
     }
 
     onNextClick = () => {
-        
+
         if(this.inputRef.current.isFocused()) {
             this.inputRef.current.blur();
         }
@@ -88,7 +88,7 @@ class ScanDetailsComponent extends Component {
 
     onTabClick = (value) => {
         // if (!this.props.edit) {
-            this.props.tabClicked(value)
+        this.props.tabClicked(value)
         // }
     }
 
@@ -122,7 +122,7 @@ class ScanDetailsComponent extends Component {
     }
 
     renderTabFirst = () => {
-        const { testIdIndex, defaultSelected,  } = this.state
+        const { testIdIndex, defaultSelected } = this.state
         const { edit, studentId, testDate, stdErr, testIds, testId, testDateErr, errTestId } = this.props
         return (
             <View>
@@ -158,49 +158,23 @@ class ScanDetailsComponent extends Component {
                     // onChangeText={(text) => this.onDetailsChange(text.trim(), 'testDate')}
                     value={testDate}
                     editable={false}
-                    // onEndEditing={() => this.props.getExamID(testDate)}
+                // onEndEditing={() => this.props.getExamID(testDate)}
                 />
-                {/* {edit ?
-                    <View style={styles.container3}>
-                        <ButtonComponent
-                            customBtnStyle={styles.cancelBtnStyle}
-                            customBtnTextStyle={styles.cancelBtnTextStyle}
-                            btnText={Strings.cancel_text_caps}
-                            onPress={() => this.onEditClick(false)}
-                        />
-                    </View>
-                    :
-                    <View style={styles.container3}>
-                        <ButtonWithIcon
-                            customBtnStyle={styles.editBtnStyle}
-                            customBtnTextStyle={styles.editBtnTextStyle}
-                            bgColor={AppTheme.TAB_BORDER}
-                            btnIcon={require('../../../assets/images/editIcon.png')}
-                            btnText={Strings.edit_text.toUpperCase()}
-                            onPress={() => this.onEditClick(true)}
-
-                        />
-                        <ButtonComponent
-                            customBtnStyle={styles.nxtBtnStyle}
-                            customBtnTextStyle={styles.nxtBtnTextStyle}
-                            btnText={Strings.next_text.toUpperCase()}
-                            onPress={this.onNextClick}
-                        />
-                    </View>} */}
-                    <View style={styles.container3}>
-                        <ButtonComponent
-                            customBtnStyle={[styles.cancelBtnStyle, { width: '35%',}]}
-                            customBtnTextStyle={styles.editBtnTextStyle}
-                            btnText={Strings.cancel_text_caps}
-                            onPress={() => this.props.onCancelFirstTab()}
-                        />
-                        <ButtonComponent
-                            customBtnStyle={styles.nxtBtnStyle}
-                            customBtnTextStyle={styles.nxtBtnTextStyle}
-                            btnText={Strings.next_text.toUpperCase()}
-                            onPress={this.onNextClick}
-                        />
-                    </View>
+                
+                <View style={styles.container3}>
+                    <ButtonComponent
+                        customBtnStyle={[styles.cancelBtnStyle, { width: '35%' }]}
+                        customBtnTextStyle={styles.editBtnTextStyle}
+                        btnText={Strings.cancel_text_caps}
+                        onPress={() => this.props.onCancelFirstTab()}
+                    />
+                    <ButtonComponent
+                        customBtnStyle={styles.nxtBtnStyle}
+                        customBtnTextStyle={styles.nxtBtnTextStyle}
+                        btnText={Strings.next_text.toUpperCase()}
+                        onPress={this.onNextClick}
+                    />
+                </View>
 
             </View>
         )
@@ -314,9 +288,9 @@ class ScanDetailsComponent extends Component {
                                             rowTitle={data[key]}
                                             rowBorderColor={AppTheme.TAB_BORDER}
                                             editable={false}
-                                            // onChangeText={(text) => {
-                                            //     this.handleTextChange(text, indexNumber, marksdetails)
-                                            // }}   
+                                        // onChangeText={(text) => {
+                                        //     this.handleTextChange(text, indexNumber, marksdetails)
+                                        // }}   
                                         />
                                     )
                                 }
@@ -351,20 +325,20 @@ class ScanDetailsComponent extends Component {
                             onPress={this.onSummaryClick}
                         />
                     </View>} */}
-                    <View style={[styles.container3, { paddingTop: '7%' }]}>
-                        <ButtonComponent
-                            customBtnStyle={[styles.cancelBtnStyle, { width: '35%',}]}
-                            customBtnTextStyle={styles.editBtnTextStyle}
-                            btnText={Strings.cancel_text_caps}
-                            onPress={() => this.onTabClick(1)}
-                        />
-                        <ButtonComponent
-                            customBtnStyle={styles.nxtBtnStyle}
-                            customBtnTextStyle={styles.nxtBtnTextStyle}
-                            btnText={Strings.summary_text.toUpperCase()}
-                            onPress={this.onSummaryClick}
-                        />
-                    </View>
+                <View style={[styles.container3, { paddingTop: '7%' }]}>
+                    <ButtonComponent
+                        customBtnStyle={[styles.cancelBtnStyle, { width: '35%' }]}
+                        customBtnTextStyle={styles.editBtnTextStyle}
+                        btnText={Strings.cancel_text_caps}
+                        onPress={() => this.onTabClick(1)}
+                    />
+                    <ButtonComponent
+                        customBtnStyle={styles.nxtBtnStyle}
+                        customBtnTextStyle={styles.nxtBtnTextStyle}
+                        btnText={Strings.summary_text.toUpperCase()}
+                        onPress={this.onSummaryClick}
+                    />
+                </View>
             </ScrollView>
         );
     }
@@ -379,7 +353,7 @@ class ScanDetailsComponent extends Component {
                 bounces={false}
                 keyboardShouldPersistTaps={'handled'}
             >
-                {!summary ? <View>
+                {!summary && <View>
                     <View style={styles.container1}>
                         <Text style={styles.header1TextStyle}>
                             {Strings.complete_these_steps_submit_marks}
@@ -389,90 +363,57 @@ class ScanDetailsComponent extends Component {
                         <TabHeader
                             tabIndex={tabIndex}
                             onPressTab1={() => this.onTabClick(1)}
-                            // onPressTab2={() => this.onTabClick(2)}
                             tabLabel1={Strings.verify_subject_details}
                             tabLabel2={Strings.verify_marks_subject}
                         />
                         {tabIndex == 1 ? this.renderTabFirst() : this.renderTabSecond()}
                     </View>
-                </View> :
-                    <ScrollView contentContainerStyle={{ backgroundColor: AppTheme.WHITE, paddingBottom: '15%' }} keyboardShouldPersistTaps={'handled'}>
-                        <Text style={styles.studentDetailsTxtStyle}>{Strings.student_details}</Text>
-                        <View style={styles.studentContainer}>
-                            <View style={styles.imageViewContainer}>
-                                <View style={styles.imageContainerStyle}>
-                                    {/* <Image
-                               source={require('../../../assets/images/sample.png')}
-                               style={styles.imageStyle}
-                               resizeMode={'contain'}
-                           /> */}
-                                    <Text style={{ textAlign: 'center', fontSize: AppTheme.HEADER_FONT_SIZE_LARGE }}>{studentName.charAt(0)}</Text>
-                                </View>
-                            </View>
-                            <View style={styles.deatilsViewContainer}>
-                                <View style={styles.detailsSubContainerStyle}>
-                                    <Text style={[styles.nameTextStyle, { fontWeight: 'bold', color: AppTheme.BLACK, fontSize: AppTheme.FONT_SIZE_LARGE }]}>{studentName}</Text>
-                                    {/* <Text style={styles.nameTextStyle}>{Strings.class_text + ': ' + 'X'}</Text>
-                           <Text style={styles.nameTextStyle}>{Strings.roll_no + ': ' + '25'}</Text> */}
-                                    <Text style={styles.nameTextStyle}>{Strings.student_id + ': ' + studentId}</Text>
-                                    <Text style={styles.nameTextStyle}>{Strings.test_id + ': ' + testId}</Text>
-                                </View>
-                            </View>
-                        </View>
-                        <View style={{ flexDirection: 'row', paddingLeft: '5%'}}>
-                            <Text style={[styles.studentDetailsTxtStyle, {paddingTop: '4%', paddingBottom: 0}]}>{Strings.total_marks+':'}</Text>
-                            <Text style={[styles.studentDetailsTxtStyle, {paddingTop: '4%', color: AppTheme.BLACK, paddingHorizontal: 0}]}>{totalMarks}</Text>
-                        </View>
-                        <View style={{ flexDirection: 'row', paddingLeft: '5%'}}>
-                            <Text style={[styles.studentDetailsTxtStyle, {paddingTop: 0}]}>{Strings.total_marks_secured+':'}</Text>
-                            <Text style={[styles.studentDetailsTxtStyle, {paddingTop: 0, color: AppTheme.BLACK, paddingHorizontal: 0}]}>{securedMarks}</Text>
-                        </View>
-                        {/* {edit ?
-                    <View style={[styles.container3, { paddingTop: '7%' }]}>
-                        <ButtonComponent
-                            customBtnStyle={styles.cancelBtnStyle}
-                            customBtnTextStyle={styles.cancelBtnTextStyle}
-                            btnText={Strings.cancel_text_caps}
-                            onPress={() => this.onEditClick(false)}
-                        />
-                    </View>
-                    :
-                    <View style={[styles.container3, { paddingTop: '7%' }]}>
-                        <ButtonWithIcon
-                            customBtnStyle={styles.editBtnStyle}
-                            customBtnTextStyle={styles.editBtnTextStyle}
-                            bgColor={AppTheme.TAB_BORDER}
-                            btnIcon={require('../../../assets/images/editIcon.png')}
-                            btnText={Strings.edit_text.toUpperCase()}
-                            onPress={() => this.props.onSummaryCancel()}
-
-                        />
-                        <ButtonComponent
-                            customBtnStyle={styles.submitBtnStyle}
-                            // customBtnTextStyle={styles.nxtBtnTextStyle}
-                            btnText={Strings.submit_text.toUpperCase()}
-                            onPress={this.onSubmitClick}
-                        />
-                    </View>} */}
-                    <View style={[styles.container3, { paddingTop: '7%' }]}>
-                        <ButtonWithIcon
-                            customBtnStyle={styles.editBtnStyle}
-                            customBtnTextStyle={styles.editBtnTextStyle}
-                            bgColor={AppTheme.TAB_BORDER}
-                            btnIcon={require('../../../assets/images/editIcon.png')}
-                            btnText={Strings.edit_text.toUpperCase()}
-                            onPress={() => this.props.onSummaryCancel()}
-
-                        />
-                        <ButtonComponent
-                            customBtnStyle={styles.submitBtnStyle}
-                            // customBtnTextStyle={styles.nxtBtnTextStyle}
-                            btnText={Strings.submit_text.toUpperCase()}
-                            onPress={this.onSubmitClick}
-                        />
-                    </View>
-                    </ScrollView>
+                </View>
                 }
+                {summary &&
+                <View style={{ backgroundColor: AppTheme.WHITE, paddingBottom: '10%' }}>
+                    <Text style={styles.studentDetailsTxtStyle}>{Strings.student_details}</Text>
+                    <View style={styles.studentContainer}>
+                        <View style={styles.imageViewContainer}>
+                            <View style={styles.imageContainerStyle}>                                
+                                <Text style={{ textAlign: 'center', fontSize: AppTheme.HEADER_FONT_SIZE_LARGE }}>{studentName.charAt(0)}</Text>
+                            </View>
+                        </View>
+                        <View style={styles.deatilsViewContainer}>
+                            <View style={styles.detailsSubContainerStyle}>
+                                <Text style={[styles.nameTextStyle, { fontWeight: 'bold', color: AppTheme.BLACK, fontSize: AppTheme.FONT_SIZE_LARGE }]}>{studentName}</Text>                                
+                                <Text style={styles.nameTextStyle}>{Strings.student_id + ': ' + studentId}</Text>
+                                <Text style={styles.nameTextStyle}>{Strings.test_id + ': ' + testId}</Text>
+                            </View>
+                        </View>
+                    </View>
+                    <View style={{ flexDirection: 'row', paddingLeft: '5%' }}>
+                        <Text style={[styles.studentDetailsTxtStyle, { paddingTop: '4%', paddingBottom: 0 }]}>{Strings.total_marks + ':'}</Text>
+                        <Text style={[styles.studentDetailsTxtStyle, { paddingTop: '4%', color: AppTheme.BLACK, paddingHorizontal: 0 }]}>{totalMarks}</Text>
+                    </View>
+                    <View style={{ flexDirection: 'row', paddingLeft: '5%' }}>
+                        <Text style={[styles.studentDetailsTxtStyle, { paddingTop: 0 }]}>{Strings.total_marks_secured + ':'}</Text>
+                        <Text style={[styles.studentDetailsTxtStyle, { paddingTop: 0, color: AppTheme.BLACK, paddingHorizontal: 0 }]}>{securedMarks}</Text>
+                    </View>
+
+                    <View style={[styles.container3, { paddingTop: '7%' }]}>
+                        <ButtonWithIcon
+                            customBtnStyle={styles.editBtnStyle}
+                            customBtnTextStyle={styles.editBtnTextStyle}
+                            bgColor={AppTheme.TAB_BORDER}
+                            btnIcon={require('../../../assets/images/editIcon.png')}
+                            btnText={Strings.edit_text.toUpperCase()}
+                            onPress={() => this.props.onSummaryCancel()}
+
+                        />
+                        <ButtonComponent
+                            customBtnStyle={styles.submitBtnStyle}
+                            btnText={Strings.submit_text.toUpperCase()}
+                            onPress={this.onSubmitClick}
+                        />
+                    </View>
+                    </View>
+            }
             </ScrollView>
         );
     }
