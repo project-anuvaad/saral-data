@@ -52,6 +52,10 @@
                 android:value="true" />
         </activity>
         <activity android:name=".ocrapp.MarkSheetScannerActivity" />
+        <activity android:name=".ocrapp.GJSATScannerActivity"
+            android:screenOrientation="landscape"
+            tools:ignore="LockedOrientationActivity">
+        </activity>
         <!-- <intent-filter>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />

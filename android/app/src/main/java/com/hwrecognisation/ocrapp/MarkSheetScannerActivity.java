@@ -17,7 +17,6 @@ import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.bridge.ReactContext;
 import com.google.common.collect.Lists;
-import com.hwrecognisation.OpenCvCameraActivity;
 import com.hwrecognisation.R;
 import com.hwrecognisation.commons.*;
 import com.hwrecognisation.hwmodel.*;
@@ -27,7 +26,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opencv.android.BaseLoaderCallback;
-//import org.opencv.android.CameraActivity;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
@@ -40,7 +38,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -68,6 +65,7 @@ public class MarkSheetScannerActivity extends ReactActivity implements CameraBri
     private DetectCircles                   mCircleDetect;
 
     private HWClassifier hwClassifier;
+    private int mScannerType                            = SCANNER_TYPE.SCANNER_PAT;
     private boolean isHWClassiferAvailable = true;
 
     private HashMap<String, Integer> mPredictedDigits    = new HashMap<>();
@@ -114,6 +112,10 @@ public class MarkSheetScannerActivity extends ReactActivity implements CameraBri
     public void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "called onCreate");
         super.onCreate(savedInstanceState);
+        if(getIntent().hasExtra("scanner")) {
+            mScannerType = getIntent().getIntExtra("scanner", 1);
+            Log.d(TAG, "Scanner type: " + mScannerType);
+        }
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -165,11 +167,16 @@ public class MarkSheetScannerActivity extends ReactActivity implements CameraBri
              * Now load the classifier
              */
             try {
-                hwClassifier    = new HWClassifier(MarkSheetScannerActivity.this, new PredictionListener() {
+                hwClassifier    = new HWClassifier(MarkSheetScannerActivity.this, mScannerType, new PredictionListener() {
                     @Override
-                    public void OnPredictionSuccess(int digit, String id) {
+                    public void OnPredictionSuccess(int digit, float confidence,  String id) {
                         Log.d(TAG, "predicted digit:" + digit + " unique id:" + id);
-                        handleDigitsPredictions(digit, id);
+//                        handleDigitsPredictions(digit, id);
+                        if (confidence <= 0.98) {
+                            handleDigitsPredictions(0, id);
+                        } else {
+                            handleDigitsPredictions(digit, id);
+                        }
                         if (mPredictedDigits.size() == ExtractRollRow.getMaxRollRowSize()) {
                             isHWClassiferAvailable = true;
                             mPredictedOMRs.put("predict", new Double( ((double)SystemClock.uptimeMillis() - (double)mStartTime)/1000).toString());

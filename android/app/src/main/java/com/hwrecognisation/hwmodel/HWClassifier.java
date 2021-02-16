@@ -12,6 +12,7 @@ import com.google.firebase.ml.custom.FirebaseModelInputOutputOptions;
 import com.google.firebase.ml.custom.FirebaseModelInputs;
 import com.google.firebase.ml.custom.FirebaseModelInterpreter;
 import com.google.firebase.ml.custom.FirebaseModelInterpreterOptions;
+import com.hwrecognisation.ocrapp.SCANNER_TYPE;
 
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
@@ -50,9 +51,11 @@ public class HWClassifier {
     private FirebaseModelInputOutputOptions         mDataOptions;
 
     public PredictionListener                       predictionListener;
+    private int                                     mScannerType;
 
-    public HWClassifier(Activity activity, PredictionListener listener) throws IOException {
+    public HWClassifier(Activity activity, int ScannerType, PredictionListener listener) throws IOException {
         predictionListener  = listener;
+        mScannerType = ScannerType;
     }
 
     public void initialize() {
@@ -140,11 +143,19 @@ public class HWClassifier {
                         .addOnSuccessListener(result -> {
                             float[][] output        = result.getOutput(0);
                             float[] probabilities   = output[0];
-                            //int digit               = getMarksValue(probabilities);
-                            //predictionListener.OnPredictionSuccess(digit, id);
-                            DigitModel digitMap = getMarksValueMap(probabilities);
-                            digitMap.setId(id);
-                            predictionListener.OnPredictionMapSuccess(digitMap, id);
+
+                            // For SAT
+                            if(mScannerType == SCANNER_TYPE.SCANNER_SAT)  {
+                                int digit               = getMarksValue(probabilities);
+                                predictionListener.OnPredictionSuccess(digit, probabilities[digit], id);
+                            }
+
+                            // For PAT
+                            if(mScannerType == SCANNER_TYPE.SCANNER_PAT) {
+                                DigitModel digitMap = getMarksValueMap(probabilities);
+                                digitMap.setId(id);
+                                predictionListener.OnPredictionMapSuccess(digitMap, id);
+                            }
                         })
                         .addOnFailureListener(e -> {
                             e.printStackTrace();

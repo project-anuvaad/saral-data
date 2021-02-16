@@ -12,7 +12,9 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.hwrecognisation.ocrapp.GJSATScannerActivity;
 import com.hwrecognisation.ocrapp.MarkSheetScannerActivity;
+import com.hwrecognisation.ocrapp.SCANNER_TYPE;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,12 +45,19 @@ public class RNOpenCvCameraModel extends ReactContextBaseJavaModule implements A
     }
 
     @ReactMethod
-    void openScanCamera(String rollNumberList, Promise promise) throws JSONException {
+    void openScanCamera(String rollNumberList, int scannerType, Promise promise) throws JSONException {
         JSONArray rollArray = new JSONArray(rollNumberList);
         Log.d(TAG, "NumberPool-OpenCamera  :: "+rollArray);
         mPromise = promise;
         final Activity activity = getCurrentActivity();
-        Intent intent = new Intent(activity, MarkSheetScannerActivity.class);
+        Intent intent = new Intent();
+        if(scannerType == SCANNER_TYPE.SCANNER_SAT) {
+            intent = new Intent(activity, GJSATScannerActivity.class);
+        }
+        else if(scannerType == SCANNER_TYPE.SCANNER_PAT) {
+            intent = new Intent(activity, MarkSheetScannerActivity.class);
+        }
+        intent.putExtra("scanner", scannerType);
         intent.putExtra("NUMBER_POOL",rollArray.toString());
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         getReactApplicationContext().startActivity(intent);
