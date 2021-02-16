@@ -58,12 +58,6 @@ class ScanHistoryContainer extends Component {
 
     componentDidMount() {
         const { navigation, getScanStatusData } = this.props
-        // navigation.addListener('willFocus', async payload => {
-        //     this.setState({ 
-        //         onGoingData: [],
-        //         completedData: []
-        //     })
-        // })
         navigation.addListener('didFocus', async payload => {
             let scanData = await getScanData()
             let loginData = await getLoginData()
@@ -131,10 +125,9 @@ class ScanHistoryContainer extends Component {
         const { navigation } = this.props
         const { params } = navigation.state
         if (params && params.from_screen && params.from_screen == 'cameraActivity') {
-            // BackHandler.exitApp()
-            this.props.navigation.navigate('selectDetails', { from_screen: 'cameraActivity'})
-            return true
         }
+        this.props.navigation.navigate('selectDetails', { from_screen: 'cameraActivity'})
+        return true
     }
 
     filterScanData = (scanData) => {

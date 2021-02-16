@@ -62,7 +62,7 @@ class ScanDetailsComponent extends Component {
     componentDidUpdate(prevProps) {
         if (prevProps != this.props) {
             const { finalArray1 } = this.props;
-            if (finalArray1 && prevProps.finalArray1 != finalArray1) {
+            if (finalArray1 && prevProps.finalArray1 != finalArray1) {                
                 this.setState({
                     marksdetails: finalArray1
                 })
@@ -211,17 +211,6 @@ class ScanDetailsComponent extends Component {
                 <Text style={styles.studentDetailsTxtStyle}>{Strings.marks_text}</Text>
 
                 <View style={{ flexDirection: 'row', }}>
-                    {/* {Object.keys(headerData).map((data, index) => {
-                        return (
-                            <MarksHeaderTable
-                                customRowStyle={{ width: index == 0 ? '15%' : '21.25%', backgroundColor: AppTheme.TABLE_HEADER }}
-                                key={index}
-                                rowTitle={headerData[data]}
-                                rowBorderColor={AppTheme.TAB_BORDER}
-                                editable={false}
-                            />
-                        )
-                    })} */}
                     {constantStrings.rowHeader.map((data, index) => {
                         return (
                             <MarksHeaderTable
@@ -241,27 +230,6 @@ class ScanDetailsComponent extends Component {
                             style={{ flexDirection: 'row' }}
                             key={indexNumber}
                         >
-                            {/* <MarksHeaderTable
-                                customRowStyle={{ width: '15%' }}
-                                rowTitle={(indexNumber + 1).toString()}
-                                rowBorderColor={AppTheme.TAB_BORDER}
-                                editable={false}
-                            /> */}
-                            {/* {data.map((rowData, index) => {
-                                return(
-                                    <MarksHeaderTable
-                                        customRowStyle={{ width: '21.25%' }}
-                                        key={index}
-                                        // icon={key == 'pass'}
-                                        rowTitle={rowData.text}
-                                        // rowTitle={data[key]}
-                                        // editable={key == 'earned' ? edit : false}
-                                        onChangeText={(text) => {
-                                            this.handleTextChange(text, indexNumber)
-                                        }}   
-                                    />
-                                )
-                            })} */}
                             {Object.keys(data).map((key, index) => {
                                 if (key == 'earned') {
                                     return (
@@ -298,33 +266,6 @@ class ScanDetailsComponent extends Component {
                         </View>
                     )
                 })}
-                {/* {edit ?
-                    <View style={[styles.container3, { paddingTop: '7%' }]}>
-                        <ButtonComponent
-                            customBtnStyle={styles.cancelBtnStyle}
-                            customBtnTextStyle={styles.cancelBtnTextStyle}
-                            btnText={Strings.cancel_text_caps}
-                            onPress={() => this.onEditClick(false)}
-                        />
-                    </View>
-                    :
-                    <View style={[styles.container3, { paddingTop: '7%' }]}>
-                        <ButtonWithIcon
-                            customBtnStyle={styles.editBtnStyle}
-                            customBtnTextStyle={styles.editBtnTextStyle}
-                            bgColor={AppTheme.TAB_BORDER}
-                            btnIcon={require('../../../assets/images/editIcon.png')}
-                            btnText={Strings.edit_text.toUpperCase()}
-                            onPress={() => this.onEditClick(true)}
-
-                        />
-                        <ButtonComponent
-                            customBtnStyle={styles.nxtBtnStyle}
-                            customBtnTextStyle={styles.nxtBtnTextStyle}
-                            btnText={Strings.summary_text.toUpperCase()}
-                            onPress={this.onSummaryClick}
-                        />
-                    </View>} */}
                 <View style={[styles.container3, { paddingTop: '7%' }]}>
                     <ButtonComponent
                         customBtnStyle={[styles.cancelBtnStyle, { width: '35%' }]}

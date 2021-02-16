@@ -29,3 +29,8 @@ export const validateToken = (expireTime) => {
         return true
     }
 }
+
+export const SCAN_TYPES = {
+    SAT_TYPE: 'sat',
+    PAT_TYPE: 'pat'
+}

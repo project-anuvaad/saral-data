@@ -1,19 +1,19 @@
 import React, { Component } from 'react';
 import { View, BackHandler, Alert } from 'react-native';
-import SelectDetailsComponent from '../components/SelectDetailsComponent';
-import Spinner from '../../common/components/loadingIndicator';
-import HeaderComponent from '../../common/components/HeaderComponent';
-import AppTheme from '../../../utils/AppTheme';
-import Strings from '../../../utils/Strings';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { OcrProcessLocal } from '../../../flux/actions/apis/ocrProcessLocalAction';
-import { OngoingScanDetailsAction } from '../../../flux/actions/apis/ongoingScanDetailsActions';
-import { getLoginData } from '../../../utils/StorageUtils'
+import AsyncStorage from '@react-native-community/async-storage';
 import _ from 'lodash'
+import AppTheme from '../../../utils/AppTheme';
+import Strings from '../../../utils/Strings';
+import Spinner from '../../common/components/loadingIndicator';
+import HeaderComponent from '../../common/components/HeaderComponent';
+import SelectDetailsComponent from '../components/SelectDetailsComponent';
+import { OcrProcessLocal } from '../../../flux/actions/apis/ocrProcessLocalAction';
+import { getLoginData } from '../../../utils/StorageUtils'
 import APITransport from '../../../flux/actions/transport/apitransport';
 import { FilteredDataAction } from '../../../flux/actions/apis/filteredDataActions';
-import AsyncStorage from '@react-native-community/async-storage';
+import { SCAN_TYPES } from '../../../utils/CommonUtils';
 
 class SelectDetailsContainer extends Component {
     constructor(props) {
@@ -26,6 +26,7 @@ class SelectDetailsContainer extends Component {
             classList: [],
             classesArr: [],
             loginData: null,
+            scanType: SCAN_TYPES.PAT_TYPE
         }
 
         this.onBack = this.onBack.bind(this)
@@ -34,10 +35,16 @@ class SelectDetailsContainer extends Component {
     componentDidMount() {
         const { navigation } = this.props
 
-        navigation.addListener('didFocus', async payload => {
+        navigation.addListener('willFocus', async payload => {
+            const { params } = navigation.state
             BackHandler.addEventListener('hardwareBackPress', this.onBack)
             if(!this.state.loginData) {
                 this.loadLoginDetails()
+            }
+            if(params && params.scanType) {
+                this.setState({ 
+                    scanType: params.scanType
+                 })
             }
         })
 
@@ -72,13 +79,8 @@ class SelectDetailsContainer extends Component {
     }
 
     onBack = () => {
-        const { navigation } = this.props
-        const { params } = navigation.state
-        if(params && params.from_screen && params.from_screen == 'cameraActivity') {
-            // this.props.navigation.navigate('scanHistory', { from_screen: 'cameraActivity'})
-            BackHandler.exitApp()
-            return true
-        }
+        this.props.navigation.navigate('dashboard')
+        return true
     }
 
     loader = (flag) => {
@@ -88,6 +90,7 @@ class SelectDetailsContainer extends Component {
     }
 
     onNext = (data) => {
+       data.scanType = this.state.scanType        
        this.props.FilteredDataAction(data)
     }
 
@@ -171,7 +174,6 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
     return bindActionCreators({
         OcrProcessLocal: OcrProcessLocal,
-        OngoingScanDetailsAction: OngoingScanDetailsAction,
         FilteredDataAction: FilteredDataAction,
         APITransport: APITransport
         

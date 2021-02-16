@@ -1,17 +1,17 @@
 import React, { Component } from 'react';
 import { View, Text, Alert, BackHandler } from 'react-native';
-import ScanDetailsComponent from '../components/ScanDetailsComponent';
-import Spinner from '../../common/components/loadingIndicator';
-import HeaderComponent from '../../common/components/HeaderComponent';
-import Strings from '../../../utils/Strings';
-import AppTheme from '../../../utils/AppTheme';
-import APITransport from '../../../flux/actions/transport/apitransport';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import _ from 'lodash'
 import { StackActions, NavigationActions } from 'react-navigation';
 import SystemSetting from 'react-native-system-setting'
+import Strings from '../../../utils/Strings';
+import AppTheme from '../../../utils/AppTheme';
+import Spinner from '../../common/components/loadingIndicator';
+import HeaderComponent from '../../common/components/HeaderComponent';
+import ScanDetailsComponent from '../components/ScanDetailsComponent';
+import APITransport from '../../../flux/actions/transport/apitransport';
 import { getLoginData, getStudentsExamData } from '../../../utils/StorageUtils'
-import _ from 'lodash'
 import { setScanData, getScanData } from '../../../utils/StorageUtils'
 import PopupDialog from '../components/PopupDialog';
 import { apkVersion } from '../../../configs/config'
@@ -91,9 +91,9 @@ class ScanDetailsContainer extends Component {
                 if (ocrProcessLocal && ocrProcessLocal.response) {
 
                     const data = ocrProcessLocal.response;
-                    let tempTable = data[0].table
-                    this.validateStudentId(tempTable[0][0])
-                    this.onStudentDetailsChange(tempTable[0][0], 'studentId', false)
+                    let tempTable = data[0]
+                    this.validateStudentId(tempTable.roll)
+                    this.onStudentDetailsChange(tempTable.roll, 'studentId', false)
                 }
             }
         });
@@ -270,8 +270,8 @@ class ScanDetailsContainer extends Component {
 
             // var updateData = Object.assign(this.props.ocrProcessLocal)
             var updateData = JSON.parse(JSON.stringify(this.props.ocrProcessLocal.response))            
-            updateData[0].table[0][0] = this.state.studentId.toUpperCase()
-            updateData[0].table[1][1] = this.state.testDate.toUpperCase() 
+            updateData[0].roll = this.state.studentId.toUpperCase()
+            // updateData[0].table[1][1] = this.state.testDate.toUpperCase() 
             
             let obj = {
                 "exam_code": this.state.testId.toUpperCase(),
@@ -286,13 +286,8 @@ class ScanDetailsContainer extends Component {
     createMarksData = async(ocrData, examCode) => {
         const { ongoingScanDetails } = this.props
         let studentsExamData = await getStudentsExamData()
-        // let selectedClassStudentsExamData = []
+
         if(studentsExamData) {
-            // _.forEach(studentsExamData, (data, index) => {
-            //     if(data.class == ongoingScanDetails.response.className && data.section.trim().toUpperCase() == ongoingScanDetails.response.section.trim().toUpperCase()) {
-            //         selectedClassStudentsExamData.push(data.data)
-            //     }
-            // })
          
             let finalOcrData = JSON.parse(JSON.stringify(ocrData))
             let response = ongoingScanDetails.response
@@ -312,7 +307,6 @@ class ScanDetailsContainer extends Component {
                     resOcr = JSON.parse(JSON.stringify(groupStudentDataBySection['All'][0].data.questionInfo))
                 }  
             }
-            // let resOcr = JSON.parse(JSON.stringify(selectedClassStudentsExamData[0].questionInfo))
             
             let filterOcrByExam = _.filter(resOcr, function (o) {
 
@@ -321,11 +315,14 @@ class ScanDetailsContainer extends Component {
                 }
             })
             
+            let sortedMarksArr = JSON.parse(JSON.stringify(finalOcrData[0].marks))            
+            sortedMarksArr.sort(function(a, b){return a.question - b.question});
+            
             for(let i = 0; i<filterOcrByExam[0].questions.length; i++) {                
 
-                filterOcrByExam[0].questions[i].obtainedMarks = finalOcrData[0].table[i+2][i+2]
+                filterOcrByExam[0].questions[i].obtainedMarks = sortedMarksArr[i].mark
             }
-        
+            
             this.setState({
                 finalOCR: filterOcrByExam
             })

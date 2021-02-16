@@ -1,19 +1,20 @@
 import React, { Component } from 'react';
 import { View, PermissionsAndroid, Platform, Alert, BackHandler, DeviceEventEmitter } from 'react-native';
-import MyScanComponent from '../components/MyScanComponent';
-import Spinner from '../../common/components/loadingIndicator';
-import HeaderComponent from '../../common/components/HeaderComponent';
+import SystemSetting from 'react-native-system-setting';
+import { connect } from 'react-redux';
+import _ from 'lodash'
 import AppTheme from '../../../utils/AppTheme';
 import Strings from '../../../utils/Strings';
-import SystemSetting from 'react-native-system-setting'
+import Spinner from '../../common/components/loadingIndicator';
+import MyScanComponent from '../components/MyScanComponent';
+import HeaderComponent from '../../common/components/HeaderComponent';
 import RNOpenCvCameraModel from '../../../utils/RNOpenCvCamera';
-import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { OcrProcessLocal } from '../../../flux/actions/apis/ocrProcessLocalAction';
 import { StackActions, NavigationActions } from 'react-navigation';
 import { getLoginData, getStudentsExamData } from '../../../utils/StorageUtils'
-import _ from 'lodash'
 import { apkVersion } from '../../../configs/config'
+import { SCAN_TYPES } from '../../../utils/CommonUtils'
 
 class MyScanContainer extends Component {
     constructor(props) {
@@ -148,7 +149,8 @@ class MyScanContainer extends Component {
     }
 
     openCameraActivity = () => {
-        const { ongoingScanDetails } = this.props
+        const { ongoingScanDetails, filteredData } = this.props
+
         SystemSetting.setBrightnessForce(1).then(async (success) => {
             if (success) {
                 SystemSetting.saveBrightness();
@@ -191,65 +193,63 @@ class MyScanContainer extends Component {
                         students7DigitRollList.push(last7Digit)
                     })
                     let uniqStudentsList = _.uniq(students7DigitRollList);
-                                        
-                    RNOpenCvCameraModel.openScanCamera(JSON.stringify(uniqStudentsList))
+                                   
+                    let scanType = filteredData.response.scanType
+                    let scanTypeInt = scanType == SCAN_TYPES.SAT_TYPE ? 1 : 2
+                    
+                    RNOpenCvCameraModel.openScanCamera(JSON.stringify(uniqStudentsList), scanTypeInt)
                         .then(data => {
-                            let imgArr = data.split(',');
-                            console.log("imgArrSuccess", imgArr);
-                            let tableData = []
-                            let response = ""
-                            for (let i = 0; i < 14; i++) {
-                                if (i == 13) {
-                                    response += imgArr[i]
-                                }
-                                else {
-                                    response += imgArr[i] + ","
-                                }
-                            }
-                            tableData.push(JSON.parse(response))
-
-                            let studentObj = {
-                                data: [{ 'row': 0, 'col': 0, "text": "વિદ્યાર્થી યુનિક આઈડી" }, { 'row': 1, 'col': 0, "text": "વપરીક્ષણ તારીખ" }],
-                                "header": { 'col': 2, 'row': 2, "title": "Student summary" }
-                            }
-
-                            let marksObj = {
-                                data: [{ 'row': 0, 'col': 0, "text": "પ્રશ્નક્રમ" }, { 'row': 0, 'col': 1, "text": "અધ્યયન નિષ્પતિ ક્રમ" }],
-                                "header": { 'col': 2, 'row': 11, "title": "Marks received" }
-                            }
-
-                            for (let i = 1; i < 6; i++) {
-                                let obj = { 'row': i, 'col': 0, "text": i }
-                                marksObj.data.push(obj)
-                            }
-
-                            let tempTable = tableData[0].table
                             let base64Data = []
-                            for (let i = 0; i < tempTable.length; i++) {
-
-                                if (i < 2) {
-                                    let obj = { 'row': i, 'col': 1, 'text': tempTable[i][i] }
-                                    studentObj.data.push(obj)
-                                }
-                                else if (i >= 2 && i <= 6) {
-                                    let obj = { 'row': i - 1, 'col': 1, 'text': tempTable[i][i] }
-                                    marksObj.data.push(obj)
-                                }
-                                else if (i > 6 && i <= 13) {
-                                    if(loginData.storeTrainingData) {
-                                        base64Data.push(tempTable[i][i])
+                            if(scanType == SCAN_TYPES.PAT_TYPE) {
+                                let imgArr = data.split(',');
+                                console.log(scanType + " :: " + imgArr);
+                                let tableData = []
+                                let response = ""
+                                for (let i = 0; i < 14; i++) {
+                                    if (i == 13) {
+                                        response += imgArr[i]
+                                    }
+                                    else {
+                                        response += imgArr[i] + ","
                                     }
                                 }
+                                tableData.push(JSON.parse(response))
+
+    
+                                let tempTable = tableData[0].table
+                                let marksArr = []
+                                let studentObj = {}
+                                for (let i = 0; i < tempTable.length; i++) {                                    
+                                    if(i == 0) {
+                                        studentObj.roll = tempTable[i][i]
+                                    }
+                                    else if (i >= 2 && i <= 6) {
+                                        let marksObj = {
+                                            question: i-1,
+                                            mark: tempTable[i][i]
+                                        }
+                                        marksArr.push(marksObj)
+                                    }
+                                    else if (i > 6 && i <= 13) {
+                                        if(loginData.storeTrainingData) {
+                                            base64Data.push(tempTable[i][i])
+                                        }
+                                    }
+                                }
+                                studentObj.marks = marksArr
+                                let table = []
+                                table.push(studentObj)
+                                
+                                this.props.OcrProcessLocal(table);
                             }
-                            
-                            let table = []
-                            table.push(studentObj, marksObj)
-                            this.props.OcrProcessLocal(tableData);
-                            //  this.setState({ iconShow: true, loaderText: Strings.scanning_complete })
-                            // setTimeout(() => {
+                            else if (scanType == SCAN_TYPES.SAT_TYPE) {
+                                console.log(scanType + ' :: ' +JSON.parse(data));
+                                this.props.OcrProcessLocal(JSON.parse(data).students)
+                            }
+
+
                             this.setState({ isLoading: false, iconShow: false, loaderText: '' })
                             this.props.navigation.navigate('scanDetails', { oldBrightness: this.state.oldBrightness, base64Data: base64Data })
-                            // }, 1000);
 
                         })
                         .catch((code, errorMessage) => {
@@ -308,6 +308,7 @@ const mapStateToProps = (state) => {
         ocrProcessLocal: state.ocrProcessLocal,
         ongoingScanDetails: state.ongoingScanDetails,
         loginDataRes: state.loginData,
+        filteredData: state.filteredData
     }
 }
 

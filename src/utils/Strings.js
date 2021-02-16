@@ -130,6 +130,8 @@ export default strings = new LocalizedStrings({
         optional_update_available: 'A new update is available of App. Do you want to update now?',
         force_update_available: 'We have an updated version for you. Please Update to continue using App.',
         no_btn_text: 'No',
-        yes_btn_text: 'Yes'
+        yes_btn_text: 'Yes',
+        sat_string: 'SAT',
+        pat_string: 'PAT'
     }
 })

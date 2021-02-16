@@ -5,6 +5,7 @@ import {
 
 import { createStackNavigator } from 'react-navigation-stack'
 import WelcomeScreenContainer from '../modules/welcomeScreen/containers/WelcomeScreenContainer';
+import DashboardComponent from '../modules/myScanScreens/components/DashboardComponent'
 import MyScanContainer from '../modules/myScanScreens/containers/MyScanContainer';
 import ScanDetailsContainer from '../modules/scanDetails/containers/ScanDetailsContainer';
 import LoginContainer from '../modules/loginScreens/containers/LoginContainer';
@@ -29,6 +30,9 @@ const welcomeScreensStack = createStackNavigator(
 
 const MainStack = createStackNavigator(
     {
+        dashboard: {
+            screen: DashboardComponent
+        },
         selectDetails: {
             screen: SelectDetailsContainer
         },
@@ -46,7 +50,7 @@ const MainStack = createStackNavigator(
         }
     },
     {
-        initialRouteName: 'selectDetails',
+        initialRouteName: 'dashboard',
         headerMode: 'none'
     }
 )

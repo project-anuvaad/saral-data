@@ -1,14 +1,12 @@
 import React, { Component } from 'react';
 import { View, ScrollView, Text, Image, TouchableOpacity, } from 'react-native';
-import Strings from '../../../utils/Strings';
-import AppTheme from '../../../utils/AppTheme';
-import ScanCard from './ScanCard';
-import AsyncStorage from '@react-native-community/async-storage';
-import ScanHistoryCard from './ScanHistoryCard';
-import { getScanData, getLoginData, getStudentsExamData, getFetchedScanData } from '../../../utils/StorageUtils'
 import _ from 'lodash'
 import { StackActions, NavigationActions } from 'react-navigation';
+import Strings from '../../../utils/Strings';
+import AppTheme from '../../../utils/AppTheme';
+import ScanHistoryCard from './ScanHistoryCard';
 import ButtonComponent from '../../common/components/ButtonComponent';
+import { getScanData, getLoginData, getStudentsExamData, getFetchedScanData } from '../../../utils/StorageUtils'
 
 class MyScanComponent extends Component {
     constructor(props) {
@@ -198,7 +196,7 @@ class MyScanComponent extends Component {
     onMyScansClick = () => {
         const resetAction = StackActions.reset({
             index: 0,
-            actions: [NavigationActions.navigate({ routeName: 'selectDetails', params: { from_screen: 'cameraActivity' } })],
+            actions: [NavigationActions.navigate({ routeName: 'dashboard', params: { from_screen: 'cameraActivity' } })],
         });
         this.props.navigation.dispatch(resetAction);
     }
@@ -206,36 +204,6 @@ class MyScanComponent extends Component {
 
     onScanClick = async () => {
         this.props.onScanClick()
-    }
-
-    onProfileClick = async () => {
-        await AsyncStorage.clear();
-        this.props.navigation.navigate('welcome')
-    }
-
-    onCardClick = () => {
-
-    }
-
-    renderScans = () => {
-        return (
-            <View>
-                <ScanCard
-                    onCardClick={this.onCardClick}
-                    // sourceImage={require('../../../assets/images/sample.png')}
-                    studentName={'Aloha Narayan'}
-                    studentClass={'X'}
-                    studentRollNo={'25'}
-                    studentId={'BR03CA1234567'}
-                    studentBookletId={'KA51MA7096'}
-                    studentTestId={'BLPAK4895R'}
-                    studentTestDate={'7/01/2020'}
-                    subject={'Mathematics'}
-                    addedDate={'12:01 PM'}
-                />
-
-            </View>
-        );
     }
 
     renderIncompletedScans = () => {
@@ -291,13 +259,6 @@ class MyScanComponent extends Component {
                     bounces={false}
                     keyboardShouldPersistTaps={'handled'}
                 >
-
-                    {/* <View style={styles.container1}>
-                        <Text style={styles.header1TextStyle}>
-                            {Strings.note_only_last_15_scans_available}
-                        </Text>
-                        {this.renderScans()}
-                    </View> */}
                     {onGoingData && onGoingData.length > 0 &&
                         <View style={styles.container1}>
                             <Text style={styles.header1TextStyle}>
@@ -314,35 +275,6 @@ class MyScanComponent extends Component {
                         </View>}    
                 </ScrollView>
                 <View style={styles.bottomTabStyle}>
-                    
-                    {/* <TouchableOpacity
-                        style={[styles.subTabContainerStyle, { marginLeft: '0%' }]}
-                        onPress={this.onMyScansClick}
-                    >
-                        <Image
-                            source={require('../../../assets/images/menuIcon.png')}
-                            style={styles.tabIconStyle}
-                            resizeMode={'contain'}
-                        />
-                        <Text style={styles.tabLabelStyle}>
-                            {Strings.my_scans}
-                        </Text>
-                    </TouchableOpacity> */}
-
-
-                    {/* <TouchableOpacity
-                        style={[styles.subTabContainerStyle, { marginRight: '1%' }]}
-                        onPress={this.onProfileClick}
-                    >
-                        <Image
-                            source={require('../../../assets/images/menuIcon.png')}
-                            style={styles.tabIconStyle}
-                            resizeMode={'contain'}
-                        />
-                        <Text style={styles.tabLabelStyle}>
-                            {Strings.logout_text}
-                        </Text>
-                    </TouchableOpacity> */}
                 </View>
 
                 <View style={[styles.bottomTabStyle, { height: 135, width: '50%', marginHorizontal: '25%', backgroundColor: 'transparent', justifyContent: 'center' }]}>
@@ -354,7 +286,6 @@ class MyScanComponent extends Component {
                         >
                             <TouchableOpacity
                                 style={styles.scanSubTabContainerStyle}
-
                             >
                                 <Image
                                     source={require('../../../assets/images/scanIcon.png')}

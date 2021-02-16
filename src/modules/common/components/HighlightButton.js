@@ -1,0 +1,51 @@
+import React, { useState } from 'react'
+import { View, Text, TouchableHighlight } from 'react-native';
+import AppTheme from '../../../utils/AppTheme';
+
+export const HighlightButton = ({
+    onBtnPress,
+    btnText
+}) => {
+    const [pressStatus, setPressStatus] = useState(false);
+    return (
+        <View
+            style={styles.container}
+        >
+            <TouchableHighlight
+                activeOpacity={1}
+                style={[styles.btnStyle, pressStatus && styles.btnStylePress]}
+                onPress={onBtnPress}
+                underlayColor={AppTheme.PRIMARY_ORANGE}
+                onHideUnderlay={() => setPressStatus(false)}
+                onShowUnderlay={() => setPressStatus(true)}
+            >
+                <Text style={[styles.btnTextStyle, pressStatus && styles.btnTextPress]}>{btnText}</Text>
+            </TouchableHighlight>
+        </View>
+    )
+}
+
+const styles = {
+    container: {
+        width: '80%',
+        marginVertical: '5%'
+    },
+    btnStyle: {
+        alignItems: 'center',
+        backgroundColor: AppTheme.WHITE,
+        elevation: 15,
+        borderRadius: 8,
+        padding: 16
+    },
+    btnStylePress: {
+        backgroundColor: AppTheme.PRIMARY_ORANGE,
+    },
+    btnTextStyle: {
+        color: AppTheme.BLACK, 
+        fontWeight: 'bold', 
+        fontSize: AppTheme.FONT_SIZE_LARGE
+    },
+    btnTextPress: {
+        color: AppTheme.WHITE
+    },
+}
