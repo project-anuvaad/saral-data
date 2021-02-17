@@ -21,6 +21,7 @@ import com.hwrecognisation.R;
 import com.hwrecognisation.commons.*;
 import com.hwrecognisation.hwmodel.*;
 import com.hwrecognisation.opencv.*;
+import com.hwrecognisation.prediction.PredictionFilter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,10 +40,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class MarkSheetScannerActivity extends ReactActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
     private static final String  TAG                    = "OCRApp::MarkSheet";
@@ -72,7 +70,6 @@ public class MarkSheetScannerActivity extends ReactActivity implements CameraBri
     private HashMap<String, DigitModel> mPredictedDigitModel    = new HashMap<>();
     private HashMap<String, String> mPredictedOMRs      = new HashMap<>();
     private String[] rollNumberPool;
-    private List<String> approach1PredictionResult = new ArrayList<>();
 
     /**
      * In order to avoid multiple predictions, we need to stop process of frame
@@ -519,13 +516,12 @@ public class MarkSheetScannerActivity extends ReactActivity implements CameraBri
         JSONArray jsonArray = new JSONArray();
         try {
             try {
-                approach1PredictionResult.clear();
                 if (rollNumberPool != null && rollNumberPool.length > 1) {
-                    applyApproach1(mPredictedDigitModel, rollNumberPool);
-                    Log.i(TAG, "Approach1========>" + approach1PredictionResult);
+                    List<String> predResult = PredictionFilter.applyApproach1(mPredictedDigitModel, rollNumberPool);
+                    Log.i(TAG, "Approach1========>" + predResult);
                     //If we have approach1 result then updating the predicted roll number
-                    if (approach1PredictionResult.size() > 0)
-                        rsp.put(0, approach1PredictionResult.get(0));
+                    if (predResult.size() > 0)
+                        rsp.put(0, predResult.get(0));
                 } else {
                     Log.i(TAG, "Approach1========> Roll number pool is empty");
                 }
@@ -550,138 +546,4 @@ public class MarkSheetScannerActivity extends ReactActivity implements CameraBri
         return jsonRsp.toString();
     }
 
-    private void applyApproach1(HashMap<String, DigitModel> digitModelHashMap, String[] numbersPool) {
-        StringBuilder searchPattern = new StringBuilder();
-        String[] digitPlaceMask = new String[7];
-        HashMap<Character, Object> digitSpread = getNumberDigitsSpread(numbersPool);
-        Log.i(TAG, "DigitSpread:" + digitSpread);
-        for (Map.Entry<Character, Object> map : digitSpread.entrySet()) {
-            Character key = map.getKey();
-            List<Character> spread = (List<Character>) map.getValue();
-            if (spread.size() == 1) {
-                digitPlaceMask[Integer.parseInt(key.toString()) - 1] = spread.get(0).toString();
-                searchPattern.append(spread.get(0));
-            } else {
-                searchPattern.append("@");
-            }
-        }
-        analyzePredictedResults(digitModelHashMap, numbersPool, new DigitMaskObject(searchPattern.toString(), digitPlaceMask));
-    }
-
-    class DigitMaskObject {
-        String searchPattern;
-        String[] digitMask;
-
-        public DigitMaskObject(String searchPattern, String[] digitMask) {
-            this.searchPattern = searchPattern;
-            this.digitMask = digitMask;
-        }
-
-        public String getSearchPattern() {
-            return searchPattern;
-        }
-
-        public String[] getDigitMask() {
-            return digitMask;
-        }
-    }
-
-    private HashMap<Character, Object> getNumberDigitsSpread(String[] roll_codes) {
-        Set<Character> digit_1 = new HashSet<>();
-        Set<Character> digit_2 = new HashSet<>();
-        Set<Character> digit_3 = new HashSet<>();
-        Set<Character> digit_4 = new HashSet<>();
-        Set<Character> digit_5 = new HashSet<>();
-        Set<Character> digit_6 = new HashSet<>();
-        Set<Character> digit_7 = new HashSet<>();
-        for (String roll_number : roll_codes) {
-            digit_1.add(roll_number.charAt(0));
-            digit_2.add(roll_number.charAt(1));
-            digit_3.add(roll_number.charAt(2));
-            digit_4.add(roll_number.charAt(3));
-            digit_5.add(roll_number.charAt(4));
-            digit_6.add(roll_number.charAt(5));
-            digit_7.add(roll_number.charAt(6));
-        }
-        HashMap<Character, Object> resultMap = new HashMap<>();
-        resultMap.put('1', Lists.newArrayList(digit_1));
-        resultMap.put('2', Lists.newArrayList(digit_2));
-        resultMap.put('3', Lists.newArrayList(digit_3));
-        resultMap.put('4', Lists.newArrayList(digit_4));
-        resultMap.put('5', Lists.newArrayList(digit_5));
-        resultMap.put('6', Lists.newArrayList(digit_6));
-        resultMap.put('7', Lists.newArrayList(digit_7));
-        return resultMap;
-    }
-
-    private void analyzePredictedResults(HashMap<String, DigitModel> digitModelHashMap, String[] numbersPool, DigitMaskObject digitMaskMode) {
-        DigitMaskObject digitMaskObject = getDigitWithHighestScoreWithIgnorePlaces(digitModelHashMap, digitMaskMode.getDigitMask());
-        List<String> filteredNumbers = new ArrayList<>();
-        for (String number : numbersPool) {
-            if (compareNumberWithPattern(number, digitMaskObject.getSearchPattern())) {
-                filteredNumbers.add(number);
-            }
-        }
-        Log.i(TAG, "Filtered:" + filteredNumbers);
-        if (filteredNumbers.size() > 1) {
-            analyzePredictedResults(digitModelHashMap, numbersPool, digitMaskObject);
-        } else {
-            Log.i(TAG, "Final_Pattern" + digitMaskObject.getSearchPattern());
-            Log.i(TAG, "Approach1_Result" + filteredNumbers.toString());
-            approach1PredictionResult.clear();
-            approach1PredictionResult.addAll(filteredNumbers);
-        }
-    }
-
-    private DigitMaskObject getDigitWithHighestScoreWithIgnorePlaces(HashMap<String, DigitModel> digitModelHashMap, String[] digitPlaceMask) {
-        double maxScore = 0;
-        int scoreIndex = 0;
-        int digitValue = 0;
-        //Log.i(TAG, "DigitMap:" + digitModelHashMap);
-        for (int i = 0; i < digitModelHashMap.entrySet().size(); i++) {
-            if (digitPlaceMask[i] == null) {
-                DigitModel digitModel = digitModelHashMap.get(String.valueOf(i));
-                if (digitModel != null && digitModel.getConfidence() > maxScore) {
-                    maxScore = digitModel.getConfidence();
-                    scoreIndex = i;
-                    digitValue = digitModel.getDigit();
-                }
-            }
-        }
-        digitPlaceMask[scoreIndex] = String.valueOf(digitValue);
-        /*Log.i(TAG,"MaxScore:"+maxScore);
-        Log.i(TAG,"scoreIndex:"+scoreIndex);
-        Log.i(TAG,"digitValue:"+digitValue);
-        Log.i(TAG,"digitPlaceMask===>:"+Arrays.toString(digitPlaceMask));
-*/
-        StringBuilder searchPattern = new StringBuilder();
-        for (int i = 0; i < digitModelHashMap.entrySet().size(); i++) {
-            if (digitPlaceMask[i] != null) {
-                searchPattern.append(digitPlaceMask[i]);
-            } else {
-                searchPattern.append("@");
-            }
-        }
-        Log.i(TAG, "ResultPattern===>:" + searchPattern);
-        return new DigitMaskObject(searchPattern.toString(), digitPlaceMask);
-    }
-
-    private boolean compareNumberWithPattern(String number, String pattern) {
-        String receivedNumber = number.trim();
-        List<Boolean> result = new ArrayList<>();
-        //Log.i(TAG,"ReceivedNumber:"+receivedNumber);
-        //Log.i(TAG,"ReceivedPatten:"+pattern);
-        for (int i = 0; i < receivedNumber.length(); i++) {
-            if (pattern.charAt(i) == '@') {
-                result.add(true);
-            } else {
-                if (pattern.charAt(i) == receivedNumber.charAt(i)) {
-                    result.add(true);
-                } else {
-                    result.add(false);
-                }
-            }
-        }
-        return !result.contains(false);
-    }
 }

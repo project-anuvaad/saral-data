@@ -3,9 +3,11 @@ package com.hwrecognisation.ocrapp;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Bitmap;
 import android.media.MediaActionSound;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.util.Base64;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.Window;
@@ -20,7 +22,9 @@ import com.hwrecognisation.hwmodel.HWClassifier;
 import com.hwrecognisation.hwmodel.PredictionListener;
 import com.hwrecognisation.opencv.DetectShaded;
 import com.hwrecognisation.opencv.ExtractROIs;
+import com.hwrecognisation.opencv.ExtractRollRow;
 import com.hwrecognisation.opencv.TableCornerCirclesDetection;
+import com.hwrecognisation.prediction.PredictionFilter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,13 +33,17 @@ import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -63,10 +71,14 @@ public class GJSATScannerActivity extends ReactActivity implements CameraBridgeV
     private int     mTotalClassifiedCount               = 0;
     private boolean mIsClassifierRequestSubmitted       = false;
     private HashMap<String, String> mPredictedDigits    = new HashMap<>();
+    private HashMap<String, DigitModel> mPredictedDigitModel    = new HashMap<>();
     private HashMap<String, String> mPredictedOMRs      = new HashMap<>();
     private HashMap<String, String> mPredictedClass     = new HashMap<>();
 
+    private String[] rollNumberPool;
+
     private HWClassifier hwClassifier;
+    private PredictionFilter predictionFilter;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -84,8 +96,10 @@ public class GJSATScannerActivity extends ReactActivity implements CameraBridgeV
             }
         }
     };
+
     public GJSATScannerActivity() {
         Log.i(TAG, "Instantiated new " + this.getClass());
+        predictionFilter = new PredictionFilter();
     }
 
     /** Called when the activity is first created. */
@@ -109,6 +123,21 @@ public class GJSATScannerActivity extends ReactActivity implements CameraBridgeV
         mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
         mOpenCvCameraView.setCvCameraViewListener(this);
         mOpenCvCameraView.enableFpsMeter();
+
+        if (getIntent().hasExtra("NUMBER_POOL")) {
+            try {
+                Log.i(TAG, "NumberPool-String:" + getIntent().hasExtra("NUMBER_POOL"));
+                JSONArray jsonArray = new JSONArray(getIntent().getStringExtra("NUMBER_POOL"));
+                rollNumberPool = new String[jsonArray.length()];
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    rollNumberPool[i] = jsonArray.optString(i);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        } else {
+            Log.i(TAG, "Intent extra number pool is not found");
+        }
     }
 
     @Override
@@ -137,15 +166,12 @@ public class GJSATScannerActivity extends ReactActivity implements CameraBridgeV
                 hwClassifier    = new HWClassifier(GJSATScannerActivity.this, mScannerType, new PredictionListener() {
                     @Override
                     public void OnPredictionSuccess(int digit, float confidence, String id) {
-                        Log.d(TAG, "predicted digit:" + digit + " unique id:" + id + " confidence:" + confidence);
-                        mTotalClassifiedCount++;
-                        if (confidence <= 0.98) {
-                            // LOW CONFIDENCE SCORE
-                            mPredictedDigits.put(id, new Integer(0).toString());
-                        } else {
-                            mPredictedDigits.put(id, new Integer(digit).toString());
-                        }
+                    }
 
+                    @Override
+                    public void OnPredictionMapSuccess(DigitModel digitMap, String id) {
+                        mTotalClassifiedCount++;
+                        handleDigitsPredictions(digitMap, id);
                         if (mIsClassifierRequestSubmitted && mTotalClassifiedCount >= mPredictedDigits.size()) {
                             mIsScanningComplete     = true;
                         }
@@ -154,11 +180,6 @@ public class GJSATScannerActivity extends ReactActivity implements CameraBridgeV
                             Log.d(TAG, "Scaning completed, classification count " + mTotalClassifiedCount);
                             processScanningCompleted();
                         }
-                    }
-
-                    @Override
-                    public void OnPredictionMapSuccess(DigitModel digitModel, String id) {
-
                     }
 
                     @Override
@@ -288,6 +309,23 @@ public class GJSATScannerActivity extends ReactActivity implements CameraBridgeV
         return null;
     }
 
+    private void handleDigitsPredictions(DigitModel digit, String id) {
+        mPredictedDigits.put(id, String.valueOf(new Integer(digit.getDigit())));
+
+        //Only Roll Number to store in mPredictedDigitModel for PredictionFilter
+        Character firstChar = new Character(id.charAt(0));
+        Character matchingChar = new Character('-');
+        if(firstChar.equals(matchingChar)) {
+            for (int index = 0; index < 7; index++) {
+                String key = -1 + "_" + -1 + "_" + index;
+                if(key.equals(id)) {
+                    mPredictedDigitModel.put(String.valueOf(index), digit);
+                    break;
+                }
+            }
+        }
+    }
+
     private void processScanningCompleted() {
         if (mScanningResultShared){
             return;
@@ -376,6 +414,14 @@ public class GJSATScannerActivity extends ReactActivity implements CameraBridgeV
             }
             JSONObject student  = new JSONObject();
             student.put("roll", sb.toString());
+
+            //Prediction Filter
+            List<String> predResult = PredictionFilter.applyApproach1(mPredictedDigitModel, rollNumberPool);
+            Log.i(TAG, "Approach1========>" + predResult);
+            //If we have approach1 result then updating the predicted roll number
+            if (predResult.size() > 0)
+                student.put("roll", predResult.get(0));
+
             students.put(student);
         } catch (JSONException e) {
             Log.e(TAG, "Unable to collect students roll");
