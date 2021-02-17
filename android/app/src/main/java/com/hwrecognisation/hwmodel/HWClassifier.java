@@ -144,18 +144,9 @@ public class HWClassifier {
                             float[][] output        = result.getOutput(0);
                             float[] probabilities   = output[0];
 
-                            // For SAT
-                            if(mScannerType == SCANNER_TYPE.SCANNER_SAT)  {
-                                int digit               = getMarksValue(probabilities);
-                                predictionListener.OnPredictionSuccess(digit, probabilities[digit], id);
-                            }
-
-                            // For PAT
-                            if(mScannerType == SCANNER_TYPE.SCANNER_PAT) {
                                 DigitModel digitMap = getMarksValueMap(probabilities);
                                 digitMap.setId(id);
                                 predictionListener.OnPredictionMapSuccess(digitMap, id);
-                            }
                         })
                         .addOnFailureListener(e -> {
                             e.printStackTrace();
