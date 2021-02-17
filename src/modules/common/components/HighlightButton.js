@@ -35,7 +35,9 @@ const styles = {
         backgroundColor: AppTheme.WHITE,
         elevation: 15,
         borderRadius: 8,
-        padding: 16
+        padding: 16,
+        borderWidth: 1,
+        borderColor: AppTheme.PRIMARY_ORANGE
     },
     btnStylePress: {
         backgroundColor: AppTheme.PRIMARY_ORANGE,

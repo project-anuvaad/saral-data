@@ -89,7 +89,8 @@ class DashboardComponent extends Component {
                         </Text>
                     </Text>
                     <View style={styles.container1}>
-                        <View style={{ backgroundColor: AppTheme.WHITE, width: '100%', alignItems: 'center', paddingVertical: '15%', borderRadius: 8  }}>
+                        <View style={{ backgroundColor: AppTheme.WHITE, width: '100%', alignItems: 'center', paddingVertical: '15%', 
+                        borderRadius: 8, borderWidth: 1, borderColor: AppTheme.PRIMARY_ORANGE  }}>
                         <HighlightButton 
                             btnText={Strings.sat_string}
                             onBtnPress={() => this.onNextClick(SCAN_TYPES.SAT_TYPE)}
