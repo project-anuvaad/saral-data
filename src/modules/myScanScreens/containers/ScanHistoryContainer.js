@@ -122,11 +122,12 @@ class ScanHistoryContainer extends Component {
     }
 
     onBack = () => {
-        const { navigation } = this.props
+        const { navigation, filteredData } = this.props
         const { params } = navigation.state
         if (params && params.from_screen && params.from_screen == 'cameraActivity') {
         }
-        this.props.navigation.navigate('selectDetails', { from_screen: 'cameraActivity'})
+        let scanType = filteredData.response.scanType
+        this.props.navigation.navigate('selectDetails', { from_screen: 'cameraActivity', scanType: scanType })
         return true
     }
 

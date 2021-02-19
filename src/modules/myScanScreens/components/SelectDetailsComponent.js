@@ -1,17 +1,18 @@
 import React, { Component } from 'react';
 import { View, ScrollView, Text, Alert } from 'react-native';
+import _ from 'lodash'
 import Strings from '../../../utils/Strings';
 import AppTheme from '../../../utils/AppTheme';
 import DropDownMenu from '../../common/components/DropDownComponent';
 import ButtonComponent from '../../common/components/ButtonComponent';
 import TextField from '../../common/components/TextField';
-import _ from 'lodash'
 import { GetStudentsAndExamData } from '../../../flux/actions/apis/getStudentsAndExamData';
 import { setStudentsExamData, getStudentsExamData, getLoginCred, setLoginData } from '../../../utils/StorageUtils'
 import { cryptoText, validateToken } from '../../../utils/CommonUtils'
 import { LoginAction } from '../../../flux/actions/apis/loginAction';
 import { GetScanStatusAction } from '../../../flux/actions/apis/getScanStatus';
 import { apkVersion } from '../../../configs/config';
+import { SCAN_TYPES } from '../../../utils/CommonUtils';
 
 const sectionArrList = [
     "All", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P",
@@ -335,7 +336,7 @@ class SelectDetailsComponent extends Component {
 
    async componentDidUpdate(prevProps) {
         if(prevProps != this.props) {
-            const { apiStatus, studentsAndExamData, loader, loginData, setLoginDataLocally, getScanStatusData } = this.props
+            const { apiStatus, studentsAndExamData, loader, loginData, setLoginDataLocally, getScanStatusData, scanType } = this.props
             const { calledApi, selectedClass, selectedSection, calledLogin, selectedClassId, callApi, scanStatusPayload, calledScanStaus } = this.state
             if (apiStatus && prevProps.apiStatus != apiStatus && apiStatus.error) {
                 if(calledApi || calledLogin || calledScanStaus) {                    
@@ -432,30 +433,37 @@ class SelectDetailsComponent extends Component {
                                 if(studentsExamDataSaved) {
                                     let examsArr = []
                                     let examsDate = []
-                                    _.filter(studentsAndExamData.data.examInfo, function(o) {                                        
-                                        let examDateArr = []
-                                        if(o.examDate.includes('T')) {
-                                            examDateArr = o.examDate.split('T')
-                                        }
-                                        else {
-                                            examDateArr.push(o.examDate)
-                                        }
-                                        let examDateArrFormatted = examDateArr[0].split('-')
-                                        let formattedExamDate = `${examDateArrFormatted[2]}-${examDateArrFormatted[1]}-${examDateArrFormatted[0]}`
-                                        examsDate.push(o.subject +' - '+ formattedExamDate)
-                                        let obj = {
-                                            exam_code: o.examCode,
-                                            exam_date: formattedExamDate,
-                                            exam_date_sub: o.subject +' - '+ formattedExamDate
-                                        }
-                                        examsArr.push(obj)
+                                    let self = this
+                                    _.filter(studentsAndExamData.data.examInfo, function(o) {
+                                        
+                                        if (scanType == SCAN_TYPES.PAT_TYPE && o.examType.trim() == 'Periodic Assessment') {
+                                            let obj = self.getExamCodeObj(o)
+                                            examsDate.push(obj.exam_date_sub)
+                                            examsArr.push(obj)
+                                        } 
+                                        else if (scanType == SCAN_TYPES.SAT_TYPE && o.examType.trim() == 'Semester Assessment') {
+                                            let obj = self.getExamCodeObj(o)
+                                            examsDate.push(obj.exam_date_sub)
+                                            examsArr.push(obj)
+                                        }                                    
                                     })
-                                    this.setState({
-                                        errSection: '',
-                                        sectionValid: true,
-                                        examsListArr: examsArr,
-                                        examsDate: examsDate,
-                                    })
+                                    if(examsDate.length == 0) {
+                                        this.setState({
+                                            errClass: Strings.no_exam_for_selected_class,
+                                            errSection: '',
+                                            sectionValid: false,
+                                            examsListArr: examsArr,
+                                            examsDate: examsDate,
+                                        })
+                                    } else {
+                                        this.setState({
+                                            errClass: '',
+                                            errSection: '',
+                                            sectionValid: true,
+                                            examsListArr: examsArr,
+                                            examsDate: examsDate,
+                                        })
+                                    }
                                 }
                             }
                             else {
@@ -504,6 +512,24 @@ class SelectDetailsComponent extends Component {
         }
     }
 
+    getExamCodeObj = (o) => {        
+        let examDateArr = []
+        if(o.examDate.includes('T')) {
+            examDateArr = o.examDate.split('T')
+        }
+        else {
+            examDateArr.push(o.examDate)
+        }
+        let examDateArrFormatted = examDateArr[0].split('-')
+        let formattedExamDate = `${examDateArrFormatted[2]}-${examDateArrFormatted[1]}-${examDateArrFormatted[0]}`
+        let obj = {
+            exam_code: o.examCode,
+            exam_date: formattedExamDate,
+            exam_date_sub: o.subject +' - '+ formattedExamDate
+        }
+        return obj
+    }
+
     render() {
         const { defaultSelected, classListIndex, selectedClass, sectionList, sectionListIndex, selectedSection, selectedDate, examsDate, examDateIndex, selectedExam, errClass, errDate, errTestId, errSection, sectionValid } = this.state
         const { classList, loginData } = this.props
@@ -548,7 +574,7 @@ class SelectDetailsComponent extends Component {
                             {"Please select below details"}
                         </Text>
                         <View style={{ backgroundColor: 'white', paddingHorizontal: '5%', minWidth: '100%', paddingVertical: '10%', borderRadius: 4 }}>
-                            <View style={[styles.fieldContainerStyle, { paddingBottom: classListIndex != -1 ? 0 : '10%'}]}>
+                            <View style={[styles.fieldContainerStyle, { paddingBottom: classListIndex != -1 && errClass == '' ? 0 : '10%'}]}>
                                 <View style={{ flexDirection: 'row' }}>
                                     <Text style={[styles.labelTextStyle]}>{Strings.class_text}</Text>
                                     {errClass != '' && <Text style={[styles.labelTextStyle, { color: AppTheme.ERROR_RED, fontSize: AppTheme.FONT_SIZE_TINY + 1, width: '60%', textAlign: 'right', fontWeight: 'normal' }]}>{errClass}</Text>}
@@ -562,7 +588,7 @@ class SelectDetailsComponent extends Component {
                                     icon={require('../../../assets/images/Arrow_Right.png')}
                                 />
                             </View>
-                            {classListIndex != -1 &&
+                            {classListIndex != -1 && errClass == '' &&
                             <View style={[styles.fieldContainerStyle, { paddingBottom: sectionListIndex != -1 && sectionValid ? 0 : '10%'}]}>
                                 <View style={{ flexDirection: 'row' }}>
                                     <Text style={[styles.labelTextStyle]}>{Strings.section}</Text>

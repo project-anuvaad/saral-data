@@ -81,7 +81,6 @@ export default strings = new LocalizedStrings({
         total_marks_secured: 'Total marks secured',
         please_correct_test_date: 'Please enter valid date',
         summary_text: 'Summary',
-        no_exam_for_given_date: 'No tests for given Date',
         login_text: 'Login',
         enter_username: 'Enter your username',
         username_text: 'Username',
@@ -132,6 +131,7 @@ export default strings = new LocalizedStrings({
         no_btn_text: 'No',
         yes_btn_text: 'Yes',
         sat_string: 'SAT',
-        pat_string: 'PAT'
+        pat_string: 'PAT',
+        no_exam_for_selected_class: 'No exams for selected class'
     }
 })

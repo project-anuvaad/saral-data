@@ -40,7 +40,7 @@ class SelectDetailsContainer extends Component {
             BackHandler.addEventListener('hardwareBackPress', this.onBack)
             if(!this.state.loginData) {
                 this.loadLoginDetails()
-            }
+            } 
             if(params && params.scanType) {
                 this.setState({ 
                     scanType: params.scanType
@@ -113,7 +113,7 @@ class SelectDetailsContainer extends Component {
     }
     
     render() {
-        const { isLoading, iconShow, loaderText, classList, classesArr, loginData } = this.state;
+        const { isLoading, iconShow, loaderText, classList, classesArr, loginData, scanType } = this.state;
 
         if(!loginData) {
             this.loadLoginDetails();
@@ -138,6 +138,7 @@ class SelectDetailsContainer extends Component {
                         loginDetails={loginData}
                         setLoginDataLocally={this.setLoginDataLocally}
                         loader={this.loader}
+                        scanType={scanType}
                         {...this.props}
                     />
                 {isLoading && 
