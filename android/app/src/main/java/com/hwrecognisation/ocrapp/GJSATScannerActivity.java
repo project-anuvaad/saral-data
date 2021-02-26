@@ -310,7 +310,12 @@ public class GJSATScannerActivity extends ReactActivity implements CameraBridgeV
     }
 
     private void handleDigitsPredictions(DigitModel digit, String id) {
-        mPredictedDigits.put(id, String.valueOf(new Integer(digit.getDigit())));
+        if (digit.getConfidence() < 0.9) {
+            // LOW CONFIDENCE SCORE
+            mPredictedDigits.put(id, new Integer(0).toString());
+        } else {
+            mPredictedDigits.put(id, String.valueOf(new Integer(digit.getDigit())));
+        }
 
         //Only Roll Number to store in mPredictedDigitModel for PredictionFilter
         Character firstChar = new Character(id.charAt(0));
