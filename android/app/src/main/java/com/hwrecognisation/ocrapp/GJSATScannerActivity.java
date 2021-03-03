@@ -310,9 +310,9 @@ public class GJSATScannerActivity extends ReactActivity implements CameraBridgeV
     }
 
     private void handleDigitsPredictions(DigitModel digit, String id) {
-        if (digit.getConfidence() < 0.9) {
-            // LOW CONFIDENCE SCORE
-            mPredictedDigits.put(id, new Integer(0).toString());
+        if (digit.getDigit() == 10) {
+            // blank image
+            mPredictedDigits.put(id, "");
         } else {
             mPredictedDigits.put(id, String.valueOf(new Integer(digit.getDigit())));
         }
