@@ -14,6 +14,7 @@ import { getLoginData } from '../../../utils/StorageUtils'
 import APITransport from '../../../flux/actions/transport/apitransport';
 import { FilteredDataAction } from '../../../flux/actions/apis/filteredDataActions';
 import { SCAN_TYPES } from '../../../utils/CommonUtils';
+import { StackActions, NavigationActions } from 'react-navigation';
 
 class SelectDetailsContainer extends Component {
     constructor(props) {
@@ -40,7 +41,7 @@ class SelectDetailsContainer extends Component {
             BackHandler.addEventListener('hardwareBackPress', this.onBack)
             if(!this.state.loginData) {
                 this.loadLoginDetails()
-            } 
+            }            
             if(params && params.scanType) {
                 this.setState({ 
                     scanType: params.scanType
@@ -79,7 +80,11 @@ class SelectDetailsContainer extends Component {
     }
 
     onBack = () => {
-        this.props.navigation.navigate('dashboard')
+        const resetAction = StackActions.reset({
+            index: 0,
+            actions: [NavigationActions.navigate({ routeName: 'dashboard' })],
+        });
+        this.props.navigation.dispatch(resetAction);
         return true
     }
 
