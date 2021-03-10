@@ -7,17 +7,22 @@ import com.hwrecognisation.commons.CVOperations;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.core.Point;
 import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
+
+import java.util.HashMap;
 
 public class DetectShaded {
     private static final String  TAG                = "OCRApp::DetectShaded";
     private boolean DEBUG                           = false;
+    private HashMap<String, Mat> mMats      = new HashMap<>();
     public DetectShaded(boolean debug){
         DEBUG = debug;
+    }
+
+    public HashMap<String, Mat> getmMats() {
+        return mMats;
     }
 
     public double getShadedPercentage(Mat image, int top, int left, int bottom, int right) {
@@ -47,9 +52,10 @@ public class DetectShaded {
         return pixel;
     }
 
-    public Mat getROIMat(Mat image, int top, int left, int bottom, int right) {
+    public Mat getROIMat(Mat image, int top, int left, int bottom, int right, String id) {
         Rect rect           = new Rect(left, top, right - left, bottom - top);
         Mat croppedImage    = new Mat(image.clone(), rect);
+        mMats.put(id, resizeImage(croppedImage));
         return resizeImage(croppedImage);
     }
     /**

@@ -58,6 +58,10 @@ class ScanDetailsContainer extends Component {
             examTakenAtIndex: -1,
             examTakenAt: "",
             examTakenAtArr: ['SCHOOL', 'HOME'],
+            predictedRoll: '',
+            predictedMarksArr: [],
+            wrongPredictedTelemetryRoll: [],
+            wrongPredictedTelemetryMarks: []
         }
         this.onBack = this.onBack.bind(this)
     }
@@ -78,7 +82,9 @@ class ScanDetailsContainer extends Component {
             if(params && params.base64Data && params.base64Data.length > 0) {
                 
                 this.setState({
-                    telemetryData: params.base64Data
+                    telemetryData: params.base64Data,
+                    wrongPredictedTelemetryRoll: [],
+                    wrongPredictedTelemetryMarks: []
                 })
             }
 
@@ -97,8 +103,14 @@ class ScanDetailsContainer extends Component {
 
                     const data = ocrProcessLocal.response;
                     let tempTable = data[0]
-                    this.validateStudentId(tempTable.roll)
-                    this.onStudentDetailsChange(tempTable.roll, 'studentId', false)
+
+                    this.setState({
+                        predictedRoll: tempTable.roll,
+                        predictedMarksArr: tempTable.marks.sort(function(a, b){return a.question - b.question})
+                    }, () => {
+                        this.validateStudentId(tempTable.roll)
+                        this.onStudentDetailsChange(tempTable.roll, 'studentId', false)
+                    })
                 }
             }
         });
@@ -349,7 +361,102 @@ class ScanDetailsContainer extends Component {
 
     }
 
+    saveChangeMarksTelemetry = (text, index) => {
+        const { loginDataRes, filteredData } = this.props
+        const { predictedMarksArr, telemetryData, wrongPredictedTelemetryMarks } = this.state
+        if(loginDataRes.data && loginDataRes.data.storeTrainingData) {
+            let scanType = filteredData.response.scanType   
+            let changeDigitBase64 = JSON.parse(JSON.stringify(wrongPredictedTelemetryMarks))
+            
+            if(scanType == SCAN_TYPES.SAT_TYPE) {                
+                for (let col = 0; col < 2; col++) {
+                    if(text.charAt(col) !== predictedMarksArr[index].mark.charAt(col)) {
+                        changeDigitBase64.forEach((element, dataIndex) => {
+                            if(element.index == (index+1)+'_'+col) {
+                                changeDigitBase64.splice(dataIndex, 1)
+                            }
+                        });
+                        let row = index
+                        if(index >= 6) {
+                            row = index-6
+                        }
+                        let key = row + "_" + col + "_" + col;
+                        let obj = {
+                            examType: scanType.toUpperCase(),
+                            fieldType: 'mark',
+                            index: (index+1)+'_'+col,
+                            predictedDigit: predictedMarksArr[index].mark.charAt(col)
+                        }
+                        for(let j=0; j<telemetryData.length; j++) {
+                            let objectKey = Object.keys(telemetryData[j])[0]  
+                                         
+                            if(objectKey == key) {
+                                obj.base64 = telemetryData[j][key]
+                                break
+                            }
+                        }
+                        changeDigitBase64.push(obj)
+                    }else {
+                        changeDigitBase64.forEach((element, dataIndex) => {
+                            if(element.index == (index+1)+'_'+col) {
+                                changeDigitBase64.splice(dataIndex, 1)
+                            }
+                        });
+                    }
+                }
+            }            
+            this.setState({
+                wrongPredictedTelemetryMarks: changeDigitBase64
+            })
+    }
+}
+
     onStudentDetailsChange = (text, type, validate) => {
+        const { loginDataRes, filteredData } = this.props
+        const { predictedRoll, telemetryData } = this.state
+        if(loginDataRes.data && loginDataRes.data.storeTrainingData) {
+            let scanType = filteredData.response.scanType   
+            let changeDigitBase64 = []            
+            if(scanType == SCAN_TYPES.PAT_TYPE) {
+                for(let i=0; i<text.length; i++) {
+                    if(text.charAt(i) !== predictedRoll.charAt(i)) {
+                        changeDigitBase64.push({
+                            examType: scanType.toUpperCase(),
+                            fieldType: 'roll',
+                            index: i.toString(),
+                            predictedDigit: text.charAt(i),
+                            base64: telemetryData[i]
+                        })
+                    }
+                }
+            }
+            else if(scanType == SCAN_TYPES.SAT_TYPE) {                
+                for (let i = 0; i < 7; i++) {                    
+                    if(text.charAt(i) !== predictedRoll.charAt(i)) {
+                        let key = -1 + "_" + -1 + "_" + i;
+                        let obj = {
+                            examType: scanType.toUpperCase(),
+                            fieldType: 'roll',
+                            index: i.toString(),
+                            predictedDigit: predictedRoll.charAt(i)
+                        }
+                        for(let j=0; j<telemetryData.length; j++) {
+                            let objectKey = Object.keys(telemetryData[j])[0]                            
+                            if(objectKey == key) {
+                                obj.base64 = telemetryData[j][key]
+                                break
+                            }
+                        }
+                        changeDigitBase64.push(obj)
+                    }
+                }
+            }
+            
+            this.setState({
+                wrongPredictedTelemetryRoll: changeDigitBase64
+            })
+        }
+
         this.setState({ 
             [type]: text,
             studentIdValid: false
@@ -380,6 +487,14 @@ class ScanDetailsContainer extends Component {
             }
 
             let data = JSON.parse(JSON.stringify(finalOCR))
+            let finalTelemetryData = []
+            this.state.wrongPredictedTelemetryRoll.forEach(element => {
+                finalTelemetryData.push(element)
+            });
+            this.state.wrongPredictedTelemetryMarks.forEach(element => {
+                finalTelemetryData.push(element)
+            });
+            
             let obj = {
                 "session_id": this.props.ongoingScanDetails.response.sessionId,
                 "exam_date": this.state.testDate,
@@ -389,7 +504,7 @@ class ScanDetailsContainer extends Component {
                 "teacher_code": this.state.loginData.TeacherCode,
                 "student": studentObj,
                 "save_status": "No",
-                "telemetryData": this.state.telemetryData,
+                "telemetryData": finalTelemetryData,
                 "telemetry_saved": "No"
             }
             let questionsArr =  []
@@ -555,6 +670,7 @@ class ScanDetailsContainer extends Component {
                     summary={summary}
                     onSummaryCancel={this.onSummaryCancel}
                     onCancelFirstTab={this.onBack}
+                    saveChangeMarksTelemetry={this.saveChangeMarksTelemetry}
                     {...this.props}
                 />
                 <PopupDialog 

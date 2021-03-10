@@ -113,11 +113,7 @@ class ScanHistoryComponent extends Component {
                     studentsArr.push(obj)
                     let teleImgArr = []
                     if(element.class_code == data.className && element.section.trim().toUpperCase() == data.section.trim().toUpperCase() && element.telemetry_saved == 'No') {                        
-                        _.forEach(element.telemetryData, (element, index) => {
-                            let obj = {
-                                index : index,
-                                base64: element
-                            }
+                        _.forEach(element.telemetryData, (obj, index) => {
                             teleImgArr.push(obj)
                         })
                         let teleObj = {

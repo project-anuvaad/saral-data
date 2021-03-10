@@ -93,6 +93,7 @@ class ScanDetailsComponent extends Component {
     }
 
     handleTextChange = (text, index, array) => {
+        this.props.saveChangeMarksTelemetry(text, index)
         let newArray = JSON.parse(JSON.stringify(array))
         newArray[index].earned[0] = text
         newArray[index].earned[1] = text.length != 0 && !isNaN(parseInt(text)) && parseFloat(text) <= parseFloat(newArray[index].maximum) ? AppTheme.TAB_BORDER : AppTheme.ERROR_RED

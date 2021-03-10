@@ -22,7 +22,6 @@ import com.hwrecognisation.hwmodel.HWClassifier;
 import com.hwrecognisation.hwmodel.PredictionListener;
 import com.hwrecognisation.opencv.DetectShaded;
 import com.hwrecognisation.opencv.ExtractROIs;
-import com.hwrecognisation.opencv.ExtractRollRow;
 import com.hwrecognisation.opencv.TableCornerCirclesDetection;
 import com.hwrecognisation.prediction.PredictionFilter;
 
@@ -42,9 +41,6 @@ import org.opencv.imgproc.Imgproc;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -286,7 +282,7 @@ public class GJSATScannerActivity extends ReactActivity implements CameraBridgeV
                         StringBuilder sb    = new StringBuilder().append(roi.getInt("row")).append("_").append(roi.getInt("col")).append("_").append(roi.getInt("index"));
                         mPredictedDigits.put(sb.toString(), "0");
 
-                        Mat digitROI        = mDetectShaded.getROIMat(tableMat, roi.getInt("top"), roi.getInt("left"), roi.getInt("bottom"), roi.getInt("right"));
+                        Mat digitROI        = mDetectShaded.getROIMat(tableMat, roi.getInt("top"), roi.getInt("left"), roi.getInt("bottom"), roi.getInt("right"), sb.toString());
                         if(hwClassifier != null) {
                             Log.d(TAG, "Requesting prediction for: " + sb.toString());
                             hwClassifier.classifyMat(digitROI, sb.toString());
@@ -360,8 +356,10 @@ public class GJSATScannerActivity extends ReactActivity implements CameraBridgeV
 
             result.put("scanner", mScannerType);
             JSONArray students  = getStudentAndMarks();
+            JSONArray base64Arr = getBase64ofMats();
 
             result.put("students", students);
+            result.put("base64Data", base64Arr);
             result.put("predict", new Double((SystemClock.uptimeMillis() - mStartPredictTime)/1000.0));
             result.put("total", new Double((SystemClock.uptimeMillis() - mStartTime)/1000.0));
 
@@ -370,6 +368,34 @@ public class GJSATScannerActivity extends ReactActivity implements CameraBridgeV
         }
 
         return result;
+    }
+
+    private String createBase64FromMat(Mat image) {
+        Bitmap resultBitmap = Bitmap.createBitmap(image.cols(), image.rows(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(image, resultBitmap);
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        resultBitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+        byte[] byteArray    = byteArrayOutputStream.toByteArray();
+        String base64       = Base64.encodeToString(byteArray, Base64.DEFAULT);
+        return base64;
+    }
+
+    private JSONArray getBase64ofMats() {
+        JSONArray base64Arr  = new JSONArray();
+        HashMap<String, Mat> mats = mDetectShaded.getmMats();
+        try {
+            for (HashMap.Entry<String, Mat> entry : mats.entrySet()) {
+                Mat image           = entry.getValue();
+                String base64 = createBase64FromMat(image);
+                JSONObject base64Obj  = new JSONObject();
+                base64Obj.put(String.valueOf(entry.getKey()), base64);
+                base64Arr.put(base64Obj);
+            }
+    } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return  base64Arr;
     }
 
     private JSONArray getStudentAndMarks() {

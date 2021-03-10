@@ -160,7 +160,7 @@ class MyScanContainer extends Component {
 
                 let loginData = await getLoginData()
                 let studentsExamData = await getStudentsExamData()
-                if (loginData && studentsExamData) {                    
+                if (loginData && studentsExamData) {
                     let response = ongoingScanDetails.response
                     let studentList = []
 
@@ -238,13 +238,19 @@ class MyScanContainer extends Component {
                                 }
                                 studentObj.marks = marksArr
                                 let table = []
-                                table.push(studentObj)
-                                
+                                table.push(studentObj)                                
+
                                 this.props.OcrProcessLocal(table);
                             }
                             else if (scanType == SCAN_TYPES.SAT_TYPE) {
-                                console.log(scanType + ' :: ' +JSON.parse(data));
+                                console.log(scanType + ' :: ',JSON.parse(data));
                                 this.props.OcrProcessLocal(JSON.parse(data).students)
+                                
+                                if(loginData.storeTrainingData) {
+                                    JSON.parse(data).base64Data.forEach((element, index) => {
+                                        base64Data.push(element)
+                                    });
+                                }                                
                             }
 
 
