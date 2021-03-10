@@ -98,18 +98,21 @@ class ScanHistoryComponent extends Component {
              }                                                
              let studentsArr = []
              let telemetryArr = []
-            completedArr.forEach(element => {                
+            completedArr.forEach(element => {    
                 if(element.class_code == data.className && element.section.trim().toUpperCase() == data.section.trim().toUpperCase() && element.save_status == 'No') {
                     let obj = {
                         studentAdharNumber: element.student.aadhaarUID,
                         schoolCode: element.student.schoolId,
                         studyingClass: element.student.studyingClass,
-                        section: element.student.section,
+                        section: element.student.section.trim().toUpperCase(),
                         marksInfo: JSON.parse(JSON.stringify(element.student.questions))
-                    }                    
+                    }
+                    if(element.student.examTakenAt) {
+                        obj.examTakenAt = element.student.examTakenAt
+                    }
                     studentsArr.push(obj)
                     let teleImgArr = []
-                    if(element.class_code == data.className && element.section.trim().toUpperCase() == data.section.trim().toUpperCase() && element.telemetry_saved == 'No') {
+                    if(element.class_code == data.className && element.section.trim().toUpperCase() == data.section.trim().toUpperCase() && element.telemetry_saved == 'No') {                        
                         _.forEach(element.telemetryData, (element, index) => {
                             let obj = {
                                 index : index,
@@ -122,12 +125,12 @@ class ScanHistoryComponent extends Component {
                             images:  JSON.parse(JSON.stringify(teleImgArr))
                         }
                         telemetryArr.push(teleObj)
-                    } 
+                    }                     
                 }
             });
             
             if(studentsArr.length > 0) {                
-                scanDataPayload.studentInfoWithMarks = studentsArr                 
+                scanDataPayload.studentInfoWithMarks = studentsArr                                 
                 this.props.completedCardClick(scanDataPayload, data.className, data.section, telemetryArr)
             }
             else if(studentsArr.length == 0) {

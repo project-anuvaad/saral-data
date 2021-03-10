@@ -15,6 +15,7 @@ import { getLoginData, getStudentsExamData } from '../../../utils/StorageUtils'
 import { setScanData, getScanData } from '../../../utils/StorageUtils'
 import PopupDialog from '../components/PopupDialog';
 import { apkVersion } from '../../../configs/config'
+import { SCAN_TYPES } from '../../../utils/CommonUtils';
 
 class ScanDetailsContainer extends Component {
     constructor(props) {
@@ -53,6 +54,10 @@ class ScanDetailsContainer extends Component {
             studentObj: null,
             studentObjArr: [],
             telemetryData: [],
+            errExamTakenAt: '',
+            examTakenAtIndex: -1,
+            examTakenAt: "",
+            examTakenAtArr: ['SCHOOL', 'HOME'],
         }
         this.onBack = this.onBack.bind(this)
     }
@@ -260,13 +265,26 @@ class ScanDetailsContainer extends Component {
         })
     }
 
-    onNext = () => {
+    setExamTakenAt = (index, value) => {
+        this.setState({
+            examTakenAtIndex: index,
+            examTakenAt: value,
+            errExamTakenAt: ''
+        }, () => {})
+    }
 
+    onNext = () => {
+        const { filteredData, loginDataRes } = this.props
+        let scanType = filteredData.response.scanType
+        if(loginDataRes && loginDataRes.data && loginDataRes.data.storeExamTakenAtInfo && scanType == SCAN_TYPES.SAT_TYPE && this.state.examTakenAtIndex == -1) {
+            this.setState({ isLoading: false, stdErr: '', examErr: '', errExamTakenAt: Strings.please_select_exam_taken_at, nextBtnClick: false, testDateErr: '' })
+            return 
+        }
         if(!this.state.studentIdValid) {
             this.validateStudentId(this.state.studentId)
         }
         if (this.state.studentIdValid) {
-            this.setState({ isLoading: false, stdErr: '', examErr: '', nextBtnClick: true, testDateErr: '' })
+            this.setState({ isLoading: false, stdErr: '', examErr: '', errExamTakenAt: '', nextBtnClick: true, testDateErr: '' })
 
             // var updateData = Object.assign(this.props.ocrProcessLocal)
             var updateData = JSON.parse(JSON.stringify(this.props.ocrProcessLocal.response))            
@@ -334,7 +352,7 @@ class ScanDetailsContainer extends Component {
     onStudentDetailsChange = (text, type, validate) => {
         this.setState({ 
             [type]: text,
-            studentIdValid: false 
+            studentIdValid: false
         }, () => {
             if(text.length == 7 && validate) {
                 this.validateStudentId(text)
@@ -346,7 +364,7 @@ class ScanDetailsContainer extends Component {
         this.setState({ tabIndex: value, nextBtnClick: false })
     }
     onSummaryClick = (marksArray) => {
-        const { studentObj, finalOCR} = this.state
+        const { studentObj, finalOCR, examTakenAtIndex } = this.state
         let valid = true
         for (let i = 0; i < marksArray.length; i++) {
             if (marksArray[i].earned[0] == '' || isNaN(marksArray[i].earned[0]) || parseFloat(marksArray[i].earned[0]) > parseFloat(marksArray[i].maximum)) {
@@ -384,6 +402,7 @@ class ScanDetailsContainer extends Component {
             });    
             
             obj.student.questions = questionsArr
+            obj.student.examTakenAt = examTakenAtIndex != -1 ? examTakenAtIndex+1 : null
             this.setState({
                 saveDataObj: obj,
                 totalMarks: totalMarks.toFixed(2),
@@ -475,9 +494,10 @@ class ScanDetailsContainer extends Component {
     render() {
         const { 
             isLoading, edit, studentId, testDate, tabIndex, finalArray1, student_name, testIds, testId, summary, testDateErr, errTestId, totalMarks, securedMarks,
-            popupVisible, defaultSelectedStuName, stuNameIndex, selectedStuName,  studentAadhaarArr
+            popupVisible, defaultSelectedStuName, stuNameIndex, selectedStuName,  studentAadhaarArr, errExamTakenAt, examTakenAtIndex, examTakenAt, examTakenAtArr
         } = this.state;
-        const { loginDataRes } = this.props
+        const { loginDataRes, filteredData } = this.props
+        let scanType = filteredData.response.scanType        
         // let headerTitle = summary ? Strings.summary_scanned_data : edit ? Strings.edit_scanned_data : Strings.verify_scanned_data
         let headerTitle = summary ? Strings.summary_scanned_data : Strings.verify_scanned_data
         return (
@@ -515,10 +535,16 @@ class ScanDetailsContainer extends Component {
                     setTestId={this.setTestId}
                     testId={testId}
                     testIds={testIds}
+                    scanType={scanType}
+                    setExamTakenAt={this.setExamTakenAt}
+                    examTakenAtIndex={examTakenAtIndex}
+                    examTakenAtArr={examTakenAtArr}
+                    examTakenAt={examTakenAt}
                     studentId={studentId.trim()}
                     testDate={testDate.trim()}
                     finalArray1={finalArray1}
                     studentName={student_name}
+                    errExamTakenAt={errExamTakenAt}
                     stdErr={this.state.stdErr}
                     examErr={this.state.examErr}
                     testDateErr={testDateErr}
@@ -560,6 +586,7 @@ const mapStateToProps = (state) => {
         ongoingScanDetails: state.ongoingScanDetails,
         studentsAndExamData: state.studentsAndExamData,
         loginDataRes: state.loginData,
+        filteredData: state.filteredData
     }
 }
 

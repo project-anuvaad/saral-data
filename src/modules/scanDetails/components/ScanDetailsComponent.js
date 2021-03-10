@@ -9,6 +9,7 @@ import ButtonWithIcon from '../../common/components/ButtonWithIcon';
 import MarksHeaderTable from './MarksHeaderTable';
 import DropDownMenu from '../../common/components/DropDownComponent';
 import constantStrings from '../../../utils/constantStrings';
+import { SCAN_TYPES } from '../../../utils/CommonUtils'
 
 const marksData = [
     {
@@ -47,11 +48,6 @@ class ScanDetailsComponent extends Component {
         super(props);
 
         this.state = {
-            bookletId: '',
-            studentId: '',
-            testId: '',
-            testDate: '',
-            subject: '',
             marksdetails: marksData,
             defaultSelected: Strings.select_text,
             testIdIndex: -1,
@@ -93,9 +89,6 @@ class ScanDetailsComponent extends Component {
     }
 
     onDetailsChange(text, type) {
-        // this.setState({
-        //     [type] :text
-        // })
         this.props.onStudentDetailsChange(text, type, true)
     }
 
@@ -108,13 +101,17 @@ class ScanDetailsComponent extends Component {
         this.setState({ marksdetails: newArray })
     }
 
-    onDropDownSelect(idx, value) {
-        this.setState({
-            testIdIndex: Number(idx),
-            testId: value,
-        }, () => {
-            this.props.setTestId(value)
-        })
+    onDropDownSelect(idx, value, type) {
+        if(type == 'testId') {
+            this.setState({
+                testIdIndex: Number(idx),
+            }, () => {
+                this.props.setTestId(value)
+            })
+        }
+        else if(type == 'examTakenAt') {
+            this.props.setExamTakenAt(Number(idx), value)
+        }
     }
 
     onSummaryClick = () => {
@@ -123,9 +120,25 @@ class ScanDetailsComponent extends Component {
 
     renderTabFirst = () => {
         const { testIdIndex, defaultSelected } = this.state
-        const { edit, studentId, testDate, stdErr, testIds, testId, testDateErr, errTestId } = this.props
+        const { edit, studentId, testDate, stdErr, testIds, testId, testDateErr, errTestId, errExamTakenAt, examTakenAtIndex, examTakenAtArr, examTakenAt, scanType, loginDataRes } = this.props
         return (
             <View>
+                {scanType == SCAN_TYPES.SAT_TYPE && loginDataRes && loginDataRes.data && loginDataRes.data.storeExamTakenAtInfo &&
+                <View style={styles.fieldContainerStyle}>
+                    <View style={{ flexDirection: 'row' }}>
+                        <Text style={[styles.labelTextStyle]}>{Strings.exam_taken_at}</Text>
+                        {errExamTakenAt != '' && <Text style={[styles.labelTextStyle, { color: AppTheme.ERROR_RED, fontSize: AppTheme.FONT_SIZE_TINY + 1, width: '60%', textAlign: 'right', fontWeight: 'normal' }]}>{errExamTakenAt}</Text>}
+                    </View>
+                    <DropDownMenu
+                        disabled={examTakenAtArr.length <= 1}
+                        options={examTakenAtArr && examTakenAtArr}
+                        onSelect={(idx, value) => this.onDropDownSelect(idx, value, 'examTakenAt')}
+                        defaultData={defaultSelected}
+                        defaultIndex={examTakenAtIndex}
+                        selectedData={examTakenAt}
+                        icon={examTakenAtArr.length == 1 ? null : require('../../../assets/images/Arrow_Right.png')}
+                    />
+                </View>}
                 <TextField
                     labelText={Strings.student_id}
                     errorField={stdErr != '' || isNaN(studentId)}
@@ -143,7 +156,7 @@ class ScanDetailsComponent extends Component {
                     <DropDownMenu
                         disabled={testIds.length <= 1}
                         options={testIds && testIds}
-                        onSelect={(idx, value) => this.onDropDownSelect(idx, value)}
+                        onSelect={(idx, value) => this.onDropDownSelect(idx, value, 'testId')}
                         defaultData={testIds.length >= 1 ? testIds[0] : defaultSelected}
                         defaultIndex={testIdIndex}
                         selectedData={testId}

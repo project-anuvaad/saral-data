@@ -132,6 +132,8 @@ export default strings = new LocalizedStrings({
         yes_btn_text: 'Yes',
         sat_string: 'SAT',
         pat_string: 'PAT',
-        no_exam_for_selected_class: 'No exams for selected class'
+        no_exam_for_selected_class: 'No exams for selected class',
+        exam_taken_at: 'Exam Taken At',
+        please_select_exam_taken_at: 'Please Select Exam Taken At',
     }
 })
