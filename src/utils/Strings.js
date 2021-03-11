@@ -135,5 +135,6 @@ export default strings = new LocalizedStrings({
         no_exam_for_selected_class: 'No exams for selected class',
         exam_taken_at: 'Exam Taken At',
         please_select_exam_taken_at: 'Please Select Exam Taken At',
+        please_select_below_details: 'Please select below details'
     }
 })

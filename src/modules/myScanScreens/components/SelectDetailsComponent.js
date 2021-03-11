@@ -571,7 +571,7 @@ class SelectDetailsComponent extends Component {
 
                     <View style={styles.container1}>
                         <Text style={styles.header1TextStyle}>
-                            {"Please select below details"}
+                            {Strings.please_select_below_details}
                         </Text>
                         <View style={{ backgroundColor: 'white', paddingHorizontal: '5%', minWidth: '100%', paddingVertical: '10%', borderRadius: 4 }}>
                             <View style={[styles.fieldContainerStyle, { paddingBottom: classListIndex != -1 && errClass == '' ? 0 : '10%'}]}>
