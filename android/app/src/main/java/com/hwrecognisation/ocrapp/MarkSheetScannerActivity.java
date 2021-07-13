@@ -61,6 +61,7 @@ public class MarkSheetScannerActivity extends ReactActivity implements CameraBri
     private ExtractTableRows                mExtractTableROIs;
     private ExtractRollRow                  mExtractRollRow;
     private DetectCircles                   mCircleDetect;
+    private BlurDetection                   blurDetection;
 
     private HWClassifier hwClassifier;
     private int mScannerType                            = SCANNER_TYPE.SCANNER_PAT;
@@ -234,6 +235,7 @@ public class MarkSheetScannerActivity extends ReactActivity implements CameraBri
         mExtractTableROIs       = new ExtractTableRows(false);
         mExtractRollRow         = new ExtractRollRow(true);
         mCircleDetect           = new DetectCircles(true);
+        blurDetection                   = new BlurDetection(false);
         isHWClassiferAvailable  = true;
         mInformedResult         = false;
         mIgnoreFrameCount       = 0;
@@ -268,12 +270,17 @@ public class MarkSheetScannerActivity extends ReactActivity implements CameraBri
                 mTableDetectionTimeFirst = SystemClock.uptimeMillis();
             }
 
-            if (mIgnoreFrameCount < START_PROCESSING_COUNT) {
-                mIgnoreFrameCount ++;
+           if (mIgnoreFrameCount < START_PROCESSING_COUNT) {
+               mIgnoreFrameCount ++;
+               return;
+           }
+            Log.d(TAG, "processCameraFrame: blurDetection before:: "+blurDetection.detectBlur(tableMat));
+            if(blurDetection.detectBlur(tableMat)) {
+                Log.d(TAG, "processCameraFrame: blurDetection after:: "+blurDetection.detectBlur(tableMat));
                 return;
             }
             Log.d(TAG, "Received Table image, detecting respective columns ROIs");
-
+            
             List<BoxRect> tableBoxes    = mExtractTableROIs.processMat(image, tableMat,
                     mTableCornerDetection.getmROI(),
                     mTableCornerDetection.getmTopLeft(),

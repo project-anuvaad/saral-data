@@ -20,6 +20,7 @@ import com.hwrecognisation.R;
 import com.hwrecognisation.hwmodel.DigitModel;
 import com.hwrecognisation.hwmodel.HWClassifier;
 import com.hwrecognisation.hwmodel.PredictionListener;
+import com.hwrecognisation.opencv.BlurDetection;
 import com.hwrecognisation.opencv.DetectShaded;
 import com.hwrecognisation.opencv.ExtractROIs;
 import com.hwrecognisation.opencv.TableCornerCirclesDetection;
@@ -61,6 +62,7 @@ public class GJSATScannerActivity extends ReactActivity implements CameraBridgeV
     private TableCornerCirclesDetection     mTableCornerDetection;
     private ExtractROIs                     mROIs;
     private DetectShaded                    mDetectShaded;
+    private BlurDetection                   blurDetection;
     private long                            mStartTime;
     private long                            mStartPredictTime;
 
@@ -216,6 +218,7 @@ public class GJSATScannerActivity extends ReactActivity implements CameraBridgeV
         mTableCornerDetection           = new TableCornerCirclesDetection(false);
         mROIs                           = new ExtractROIs(false);
         mDetectShaded                   = new DetectShaded(false);
+        blurDetection                   = new BlurDetection(false);
         mTotalClassifiedCount           = 0;
         mIsScanningComplete             = false;
         mScanningResultShared           = false;
@@ -248,8 +251,13 @@ public class GJSATScannerActivity extends ReactActivity implements CameraBridgeV
 //        return;
 
         if (tableMat != null && isHWClassiferAvailable) {
-            if (mIgnoreFrameCount < START_PROCESSING_COUNT) {
-                mIgnoreFrameCount ++;
+           if (mIgnoreFrameCount < START_PROCESSING_COUNT) {
+               mIgnoreFrameCount ++;
+               return;
+           }
+            Log.d(TAG, "processCameraFrame: blurDetection before:: "+blurDetection.detectBlur(tableMat));
+            if(blurDetection.detectBlur(tableMat)) {
+                Log.d(TAG, "processCameraFrame: blurDetection after:: "+blurDetection.detectBlur(tableMat));
                 return;
             }
             isRelevantFrameAvailable        = true;
