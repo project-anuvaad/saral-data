@@ -14,7 +14,7 @@ import { OcrProcessLocal } from '../../../flux/actions/apis/ocrProcessLocalActio
 import { StackActions, NavigationActions } from 'react-navigation';
 import { getLoginData, getStudentsExamData } from '../../../utils/StorageUtils'
 import { apkVersion } from '../../../configs/config'
-import { SCAN_TYPES } from '../../../utils/CommonUtils'
+import { getQuestionsPAT_34, SCAN_TYPES } from '../../../utils/CommonUtils'
 
 class MyScanContainer extends Component {
     constructor(props) {
@@ -103,7 +103,7 @@ class MyScanContainer extends Component {
             const grantedRead = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE)
             const grantedWrite = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE)
             const grantedCamera = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.CAMERA)
-            
+
             if (grantedRead && grantedWrite && grantedCamera) {
                 this.openCameraActivity()
             }
@@ -125,7 +125,7 @@ class MyScanContainer extends Component {
                         permRes['android.permission.CAMERA'] === PermissionsAndroid.RESULTS.GRANTED
                     ) {
                         this.openCameraActivity()
-                    } else if(permRes['android.permission.READ_EXTERNAL_STORAGE'] == 'never_ask_again' ||
+                    } else if (permRes['android.permission.READ_EXTERNAL_STORAGE'] == 'never_ask_again' ||
                         permRes['android.permission.WRITE_EXTERNAL_STORAGE'] == 'never_ask_again' ||
                         permRes['android.permission.CAMERA'] == 'never_ask_again') {
                         Alert.alert(Strings.message_text, Strings.give_permission_from_settings, [
@@ -193,14 +193,19 @@ class MyScanContainer extends Component {
                         students7DigitRollList.push(last7Digit)
                     })
                     let uniqStudentsList = _.uniq(students7DigitRollList);
-                                   
+
                     let scanType = filteredData.response.scanType
-                    let scanTypeInt = scanType == SCAN_TYPES.SAT_TYPE ? 1 : 2
-                    
+
+                    let classId = filteredData.response.class;
+
+                    let scanTypeInt = scanType == SCAN_TYPES.SAT_TYPE ? 1 : scanType == SCAN_TYPES.PAT_TYPE && classId <= 8 ? 2 : 3;
+                    let subject = filteredData.response.subject;
+
                     RNOpenCvCameraModel.openScanCamera(JSON.stringify(uniqStudentsList), scanTypeInt)
                         .then(data => {
                             let base64Data = []
-                            if(scanType == SCAN_TYPES.PAT_TYPE) {
+                            if (scanTypeInt == 2) {
+
                                 let imgArr = data.split(',');
                                 console.log(scanType + " :: " + imgArr);
                                 let tableData = []
@@ -215,43 +220,60 @@ class MyScanContainer extends Component {
                                 }
                                 tableData.push(JSON.parse(response))
 
-    
+
                                 let tempTable = tableData[0].table
                                 let marksArr = []
                                 let studentObj = {}
-                                for (let i = 0; i < tempTable.length; i++) {                                    
-                                    if(i == 0) {
+                                for (let i = 0; i < tempTable.length; i++) {
+                                    if (i == 0) {
                                         studentObj.roll = tempTable[i][i]
                                     }
                                     else if (i >= 2 && i <= 6) {
                                         let marksObj = {
-                                            question: i-1,
+                                            question: i - 1,
                                             mark: tempTable[i][i]
                                         }
                                         marksArr.push(marksObj)
                                     }
                                     else if (i > 6 && i <= 13) {
-                                        if(loginData.storeTrainingData) {
+                                        if (loginData.storeTrainingData) {
                                             base64Data.push(tempTable[i][i])
                                         }
                                     }
                                 }
                                 studentObj.marks = marksArr
                                 let table = []
-                                table.push(studentObj)                                
+                                table.push(studentObj)
 
                                 this.props.OcrProcessLocal(table);
                             }
-                            else if (scanType == SCAN_TYPES.SAT_TYPE) {
-                                console.log(scanType + ' :: ',JSON.parse(data));
-                                this.props.OcrProcessLocal(JSON.parse(data).students)
-                                
-                                if(loginData.storeTrainingData) {
+                            else if ( scanTypeInt == 3) {
+                                console.log(scanType + ' :: ', JSON.parse(data));
+                                let questionNumber=getQuestionsPAT_34(classId,subject);
+                                let arrFormat=JSON.parse(data);
+                                let sortedArray=arrFormat.students[0].marks.sort(function(a,b){
+                                    return a.question - b.question
+                                });
+                                let portion_Array=sortedArray.slice(0,questionNumber);
+                                arrFormat.students[0].marks=portion_Array;
+                                this.props.OcrProcessLocal(arrFormat.students);
+                                if (loginData.storeTrainingData) {
                                     JSON.parse(data).base64Data.forEach((element, index) => {
                                         base64Data.push(element)
                                     });
-                                }                                
+                                }
                             }
+                            else if (scanTypeInt ==1) {
+                                console.log(scanType + ' :: ', JSON.parse(data));
+                                this.props.OcrProcessLocal(JSON.parse(data).students)
+
+                                if (loginData.storeTrainingData) {
+                                    JSON.parse(data).base64Data.forEach((element, index) => {
+                                        base64Data.push(element)
+                                    });
+                                }
+                            }
+                            
 
 
                             this.setState({ isLoading: false, iconShow: false, loaderText: '' })

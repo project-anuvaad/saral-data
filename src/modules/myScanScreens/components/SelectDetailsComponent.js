@@ -44,6 +44,7 @@ const clearState = {
     callApi: '',
     scanStatusPayload: null,
     calledScanStaus: false,
+    selectedSubject:''
 }
 
 class SelectDetailsComponent extends Component {
@@ -78,6 +79,7 @@ class SelectDetailsComponent extends Component {
             callApi: '',
             scanStatusPayload: null,
             calledScanStaus: false,
+            selectedSubject:''
         }
     }
     
@@ -128,7 +130,7 @@ class SelectDetailsComponent extends Component {
     }
 
     onNextClick = () => {
-        const { selectedClass, selectedClassId, selectedExam, selectedDateWoSub, selectedSection } = this.state
+        const { selectedClass, selectedClassId, selectedExam, selectedDateWoSub, selectedSection,selectedSubject } = this.state
         this.setState({
             errClass: '',
             errDate: '',
@@ -142,6 +144,7 @@ class SelectDetailsComponent extends Component {
                     examCode: selectedExam,
                     testDate: selectedDateWoSub,
                     section: selectedSection,
+                    subject:selectedSubject,
                     sessionId: selectedExam+'_'+ uuid.v4()
                 }
                 this.props.onNext(obj)
@@ -238,10 +241,12 @@ class SelectDetailsComponent extends Component {
         else if(type == 'date') {
             let exam = ''
             let date = ''
+            let subject=''
             _.find(this.state.examsListArr, function(o) {
                 if(o.exam_date_sub == value) {
                     exam = o.exam_code
                     date = o.exam_date
+                    subject= o.exam_sub
                 }
              });
              this.setState({
@@ -249,7 +254,8 @@ class SelectDetailsComponent extends Component {
                 examDateIndex: Number(index),
                 selectedDate: value,
                 selectedDateWoSub: date,
-                selectedExam: exam
+                selectedExam: exam,
+                selectedSubject:subject
              })
         }
     }
@@ -525,7 +531,8 @@ class SelectDetailsComponent extends Component {
         let obj = {
             exam_code: o.examCode,
             exam_date: formattedExamDate,
-            exam_date_sub: o.subject +' - '+ formattedExamDate
+            exam_date_sub: o.subject +' - '+ formattedExamDate,
+            exam_sub: o.subject
         }
         return obj
     }

@@ -45,13 +45,13 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
-public class GJSATScannerActivity extends ReactActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
-    private static final String  TAG                    = "OCRApp::GJSAT";
+public class GJPATScannerActivity34 extends ReactActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
+    private static final String  TAG                    = "OCRApp::GJPAT";
     private static long mframeCount                     = 0;
     private static long mIgnoreFrameCount               = 0;
     private static final int START_PROCESSING_COUNT     = 20;
 
-    private int mScannerType                            = SCANNER_TYPE.SCANNER_SAT;
+    private int mScannerType                            = SCANNER_TYPE.SCANNER_PAT34;
     private boolean isHWClassiferAvailable              = true;
     private boolean isRelevantFrameAvailable            = false;
     private boolean mIsScanningComplete                 = false;
@@ -95,7 +95,7 @@ public class GJSATScannerActivity extends ReactActivity implements CameraBridgeV
         }
     };
 
-    public GJSATScannerActivity() {
+    public GJPATScannerActivity34() {
         Log.i(TAG, "Instantiated new " + this.getClass());
         predictionFilter = new PredictionFilter();
     }
@@ -161,7 +161,7 @@ public class GJSATScannerActivity extends ReactActivity implements CameraBridgeV
              * Now load the classifier
              */
             try {
-                hwClassifier    = new HWClassifier(GJSATScannerActivity.this, mScannerType, new PredictionListener() {
+                hwClassifier    = new HWClassifier(GJPATScannerActivity34.this, mScannerType, new PredictionListener() {
                     @Override
                     public void OnPredictionSuccess(int digit, float confidence, String id) {
                     }
@@ -245,16 +245,15 @@ public class GJSATScannerActivity extends ReactActivity implements CameraBridgeV
     }
 
     private void processCameraFrame(Mat image, long frameCount) {
-        double DARKNESS_THRESHOLD   = 80.0;
-        Mat tableMat                = mTableCornerDetection.processMat(image,25,30);
+        Mat tableMat                = mTableCornerDetection.processMat(image,15,20);
         mStartTime                  = SystemClock.uptimeMillis();
-//        return;
+
 
         if (tableMat != null && isHWClassiferAvailable) {
-           if (mIgnoreFrameCount < START_PROCESSING_COUNT) {
-               mIgnoreFrameCount ++;
-               return;
-           }
+            if (mIgnoreFrameCount < START_PROCESSING_COUNT) {
+                mIgnoreFrameCount ++;
+                return;
+            }
             Log.d(TAG, "processCameraFrame: blurDetection before:: "+blurDetection.detectBlur(tableMat));
             if(blurDetection.detectBlur(tableMat)) {
                 Log.d(TAG, "processCameraFrame: blurDetection after:: "+blurDetection.detectBlur(tableMat));
@@ -275,16 +274,6 @@ public class GJSATScannerActivity extends ReactActivity implements CameraBridgeV
                 for (int i = 0; i < rois.length(); i++) {
                     JSONObject roi  = rois.getJSONObject(i);
 
-                    if (roi.getString("method").equals("omr")) {
-                        StringBuilder sb    = new StringBuilder().append(roi.getInt("row")).append("_").append(roi.getInt("col")).append("_").append(roi.getInt("index"));
-                        double percent      = mDetectShaded.getShadedPercentage(tableMat, roi.getInt("top"), roi.getInt("left"), roi.getInt("bottom"), roi.getInt("right"));
-                        Integer answer      = 0;
-                        if (percent > DARKNESS_THRESHOLD) {
-                            answer = 1;
-                        }
-                        mPredictedOMRs.put(sb.toString(), answer.toString());
-                        Log.d(TAG, "key: " + sb.toString() + " answer: " + answer.toString());
-                    }
 
                     if (roi.getString("method").equals("classify")) {
                         StringBuilder sb    = new StringBuilder().append(roi.getInt("row")).append("_").append(roi.getInt("col")).append("_").append(roi.getInt("index"));
@@ -307,8 +296,8 @@ public class GJSATScannerActivity extends ReactActivity implements CameraBridgeV
     }
 
     private JSONArray getROIs() {
-        if (mScannerType == SCANNER_TYPE.SCANNER_SAT) {
-            return mROIs.getGJSAT_ROIs();
+        if (mScannerType == SCANNER_TYPE.SCANNER_PAT34) {
+            return mROIs.getGJPAT34_ROIs();
         }
         return null;
     }
@@ -349,7 +338,7 @@ public class GJSATScannerActivity extends ReactActivity implements CameraBridgeV
 
         ReactInstanceManager mReactInstanceManager  = getReactNativeHost().getReactInstanceManager();
         ReactContext reactContext                   = mReactInstanceManager.getCurrentReactContext();
-        Intent sendData                             = new Intent(reactContext, GJSATScannerActivity.class);
+        Intent sendData                             = new Intent(reactContext, GJPATScannerActivity34.class);
 
         sendData.putExtra("fileName", response.toString());
         mReactInstanceManager.onActivityResult(null, 1, 2, sendData);
@@ -400,7 +389,7 @@ public class GJSATScannerActivity extends ReactActivity implements CameraBridgeV
                 base64Obj.put(String.valueOf(entry.getKey()), base64);
                 base64Arr.put(base64Obj);
             }
-    } catch (JSONException e) {
+        } catch (JSONException e) {
             e.printStackTrace();
         }
         return  base64Arr;
@@ -470,8 +459,8 @@ public class GJSATScannerActivity extends ReactActivity implements CameraBridgeV
     }
 
     private JSONArray getStudentsMarks() {
-        int rows    = 6;
-        int cols    = 2;
+        int rows    = 12;
+        int cols    = 3;
 
         JSONArray marks  = new JSONArray();
         JSONArray rois   = getROIs();
