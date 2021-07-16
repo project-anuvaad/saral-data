@@ -41,7 +41,8 @@ const AppTheme = {
     INACTIVE_BTN_TEXT: '#C6C6C6',
     BTN_BORDER_GREY: '#E8E8E8',
     GREY_TITLE: '#B2B2B2',
-    TABLE_HEADER: '#FAFAFA'
+    TABLE_HEADER: '#FAFAFA',
+    YELLOW:'#E3A322'
 
 };
 

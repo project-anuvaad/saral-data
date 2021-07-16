@@ -494,7 +494,7 @@ class SelectDetailsComponent extends Component {
                 if (getScanStatusData && prevProps.getScanStatusData != getScanStatusData) {
                     this.setState({ calledScanStaus: false, callApi: '' })
                     if (getScanStatusData.status && getScanStatusData.status == 200) {
-                        this.props.navigation.navigate('scanHistory')
+                        this.props.navigation.navigate('AbsentUi')
                     }
                     else {
                         this.setState({
