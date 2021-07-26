@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@react-native-community/async-storage": "^1.7.1",
+    "@react-native-firebase/app": "^12.3.0",
+    "@react-native-firebase/crashlytics": "^12.3.0",
     "axios": "^0.19.0",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
