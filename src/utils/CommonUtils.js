@@ -40,7 +40,7 @@ export const getQuestionsPAT_34 = (classId, subject, stream = null) => {
     if(classId == 9) {
       question = 10
       if(subject=='math') {
-        question = 12
+        question = 11
       }
     }
     else if(classId == 10) {
@@ -49,7 +49,7 @@ export const getQuestionsPAT_34 = (classId, subject, stream = null) => {
       } else if(subject == 'science') {
         question = 33
       } else if(subject == 'socialScience') {
-        question = 37
+        question = 27
       }
     }
     else if(classId == 12) {

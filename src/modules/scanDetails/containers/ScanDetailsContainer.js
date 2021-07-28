@@ -16,6 +16,9 @@ import { setScanData, getScanData } from '../../../utils/StorageUtils'
 import PopupDialog from '../components/PopupDialog';
 import { apkVersion } from '../../../configs/config'
 import { SCAN_TYPES } from '../../../utils/CommonUtils';
+import {pat_questions} from './pat_questions';
+
+
 
 class ScanDetailsContainer extends Component {
     constructor(props) {
@@ -344,7 +347,7 @@ class ScanDetailsContainer extends Component {
                     return o
                 }
             })
-            
+            filterOcrByExam[0].questions=pat_questions;
             let sortedMarksArr = JSON.parse(JSON.stringify(finalOcrData[0].marks))            
             sortedMarksArr.sort(function(a, b){return a.question - b.question});
             
