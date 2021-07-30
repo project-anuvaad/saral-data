@@ -4,7 +4,7 @@ import { apkVersion } from '../../configs/config';
 
 
 //storage
-import { getStudentsExamData, getLoginCred } from '../../utils/StorageUtils';
+import { getStudentsExamData, getLoginCred,  setAbsentStudentDataIntoAsync, setTotalStudent } from '../../utils/StorageUtils';
 
 import Strings from '../../utils/Strings';
 
@@ -23,7 +23,6 @@ import _ from 'lodash'
 import { SaveAbsentDataAction } from '../../flux/actions/apis/saveAbsentDataAction';
 import { validateToken, cryptoText } from '../../utils/CommonUtils';
 import { LoginAction } from '../../flux/actions/apis/loginAction';
-import { SaveAbsentDataLocal } from '../../flux/actions/apis/saveDataLocal';
 import Spinner from '../common/components/loadingIndicator';
 
 const AbsentUi = ({
@@ -63,6 +62,7 @@ const AbsentUi = ({
                 return true;
             }
         })
+        setTotalStudent(filteredStudents[0].data.studentsInfo)
 
         let examId = ''
 
@@ -97,9 +97,9 @@ const AbsentUi = ({
             let isTokenValid = validateToken(token)
             if (isTokenValid) {
                 let absentList = _.filter(studentsData, (o) => o.isAbsent);
-                SaveAbsentDataLocal(absentList);
                 saveAbsentDetails(token);
-                console.log("if", absentList, saveDataLocal);
+                setAbsentStudentDataIntoAsync(absentList);
+                console.log("if", absentList);
 
             }
             else if (!isTokenValid) {
@@ -107,8 +107,7 @@ const AbsentUi = ({
             }
         } else {
             let absentList = _.filter(studentsData, (o) => o.isAbsent);
-            SaveAbsentDataLocal(absentList);
-            console.log("Else", absentList, saveDataLocal);
+            setAbsentStudentDataIntoAsync(absentList);
             navigation.navigate('scanHistory');
         }
     }
@@ -139,7 +138,7 @@ const AbsentUi = ({
     }, [])
 
     useEffect(() => {
-        console.log("dummy",saveAbsentStudent,prevSaveRes);
+        console.log("dummy", saveAbsentStudent, prevSaveRes);
         if (prevloginResponse && loginDataRes && prevloginResponse != loginDataRes) {
             setIsLoading(false);
             if (loginDataRes && loginDataRes.data && loginDataRes.status == 200) {
@@ -162,7 +161,7 @@ const AbsentUi = ({
                 ])
             }
         }
-    },[saveAbsentStudent,loginDataRes])
+    }, [saveAbsentStudent, loginDataRes])
 
 
     const onMarkPresentAbsent = (data) => {
@@ -276,7 +275,6 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
     return bindActionCreators({
         APITransport: APITransport,
-        SaveAbsentDataLocal: SaveAbsentDataLocal
     }, dispatch)
 }
 export default connect(mapStateToProps, mapDispatchToProps)(AbsentUi);

@@ -10,7 +10,6 @@ import filteredDataReducer from './filteredDataReducer';
 import appUpdateReducer from './appUpdateReducer';
 import absentStudentReducer from './getAbsentStudentReducer';
 import saveAbsentStudentReducer from './saveAbsentStudentReducer';
-import  saveAbsentDataLocalReducer from './saveAbsentDataLocalReducer';
 
 export default {
     apiStatus: apiStatus,
@@ -25,6 +24,5 @@ export default {
     appUpdateData: appUpdateReducer,
     absentStudentDataResponse:absentStudentReducer,
     saveAbsentStudent:saveAbsentStudentReducer,
-    saveDataLocal:saveAbsentDataLocalReducer,
 
 }
