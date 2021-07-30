@@ -13,6 +13,7 @@ import { LoginAction } from '../../../flux/actions/apis/loginAction';
 import { GetScanStatusAction } from '../../../flux/actions/apis/getScanStatus';
 import { apkVersion } from '../../../configs/config';
 import { SCAN_TYPES } from '../../../utils/CommonUtils';
+import {GetAbsentStudentData} from '../../../flux/actions/apis/getAbsentStudentData';
 
 const sectionArrList = [
     "All", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P",
@@ -44,6 +45,8 @@ const clearState = {
     callApi: '',
     scanStatusPayload: null,
     calledScanStaus: false,
+    absentStatusPayload: null,
+    calledAbsentStatus: false
 }
 
 class SelectDetailsComponent extends Component {
@@ -78,6 +81,8 @@ class SelectDetailsComponent extends Component {
             callApi: '',
             scanStatusPayload: null,
             calledScanStaus: false,
+            absentStatusPayload: null,
+            calledAbsentStatus: false
         }
     }
     
@@ -292,6 +297,44 @@ class SelectDetailsComponent extends Component {
         })
     }
 
+    validateAbsentStatusApi = () => {
+        const { selectedClassId, selectedExam, selectedSection } = this.state
+        const { loginDetails } = this.props
+        let schoolId = loginDetails.schoolInfo.schoolCode
+        let payload = {
+            schoolId: schoolId,
+            examCode: selectedExam,
+            classId: selectedClassId,
+            section: selectedSection == 'All' ? 0 : selectedSection,
+        }
+        
+        this.setState({
+            absentStatusPayload: payload
+        }, () => {
+            let isTokenValid = validateToken(loginDetails.expiresOn)
+            
+            if (isTokenValid) {
+                this.callAbsentStatus(payload, loginDetails.jwtToken)
+            }
+            else if (!isTokenValid) {
+                this.setState({
+                    callApi: 'callAbsentStatus'
+                })
+                this.loginAgain()
+            }
+        })
+    }
+
+    callAbsentStatus = (payload, token) => {
+        this.setState({
+            isLoading: true,
+            calledAbsentStatus: true
+        }, () => {
+            let apiObj = new GetAbsentStudentData(payload, token);
+            this.props.APITransport(apiObj)
+        })
+    }
+
     callStudentsData = (token) => {        
         const { dataPayload } = this.state
         this.setState({
@@ -336,14 +379,16 @@ class SelectDetailsComponent extends Component {
 
    async componentDidUpdate(prevProps) {
         if(prevProps != this.props) {
-            const { apiStatus, studentsAndExamData, loader, loginData, setLoginDataLocally, getScanStatusData, scanType } = this.props
-            const { calledApi, selectedClass, selectedSection, calledLogin, selectedClassId, callApi, scanStatusPayload, calledScanStaus } = this.state
+            const { apiStatus, studentsAndExamData, loader, loginData, setLoginDataLocally, getScanStatusData, scanType,absentStudentDataResponse } = this.props
+            const { calledApi, selectedClass, selectedSection, calledLogin, selectedClassId, callApi, scanStatusPayload, calledScanStaus, absentStatusPayload, calledAbsentStatus } = this.state
+            console.log("absentStudentData",absentStudentDataResponse);
             if (apiStatus && prevProps.apiStatus != apiStatus && apiStatus.error) {
-                if(calledApi || calledLogin || calledScanStaus) {                    
+                if(calledApi || calledLogin || calledScanStaus || calledAbsentStatus) {                    
                     loader(false)
                     this.setState({ 
                         calledApi: false, 
                         calledScanStaus: false,
+                        calledAbsentStatus: false,
                         sectionValid: false, 
                         examDateIndex: -1,
                         selectedExam: '',
@@ -371,12 +416,14 @@ class SelectDetailsComponent extends Component {
                         if(loginData.status && loginData.status == 200) {
                                 let loginSaved = await setLoginData(loginData.data)
                                 setLoginDataLocally(loginData.data)                                
-                                if(loginSaved) {                                    
+                                if(loginSaved) {
                                     if (callApi == 'callScanStatus') {
                                         this.callScanStatus(scanStatusPayload, loginData.data.jwtToken)
                                     }
                                     else if (callApi == 'callStudentsData') {
                                         this.callStudentsData(loginData.data.jwtToken)
+                                    } else if(callApi == 'callAbsentStatus') {
+                                        this.callAbsentStatus(absentStatusPayload, loginData.data.jwtToken)
                                     }
                                 }
                                 else {
@@ -494,7 +541,8 @@ class SelectDetailsComponent extends Component {
                 if (getScanStatusData && prevProps.getScanStatusData != getScanStatusData) {
                     this.setState({ calledScanStaus: false, callApi: '' })
                     if (getScanStatusData.status && getScanStatusData.status == 200) {
-                        this.props.navigation.navigate('AbsentUi')
+                        this.validateAbsentStatusApi()
+                        // this.props.navigation.navigate('AbsentUi')
                     }
                     else {
                         this.setState({
@@ -503,6 +551,26 @@ class SelectDetailsComponent extends Component {
                             Alert.alert(Strings.message_text, Strings.please_try_again, [{
                                 text: Strings.ok_text, onPress: () => {
                                     this.validateScanStatusApi()
+                                }
+                            }])    
+                        })
+                    }
+                }
+            }
+
+            if (calledAbsentStatus) {
+                if (absentStudentDataResponse && prevProps.absentStudentDataResponse != absentStudentDataResponse) {
+                    this.setState({ calledAbsentStatus: false, callApi: '' })
+                    if (absentStudentDataResponse.status && absentStudentDataResponse.status == 200) {
+                        this.props.navigation.navigate('AbsentUi')
+                    }
+                    else {
+                        this.setState({
+                            isLoading: false
+                        }, () => {
+                            Alert.alert(Strings.message_text, Strings.please_try_again, [{
+                                text: Strings.ok_text, onPress: () => {
+                                    this.validateAbsentStatusApi()
                                 }
                             }])    
                         })

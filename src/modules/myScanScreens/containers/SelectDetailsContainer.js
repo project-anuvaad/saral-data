@@ -172,7 +172,8 @@ const mapStateToProps = (state) => {
         loginData: state.loginData,
         studentsAndExamData: state.studentsAndExamData,
         getScanStatusData: state.getScanStatusData,
-        filteredData: state.filteredData
+        filteredData: state.filteredData,
+        absentStudentDataResponse:state.absentStudentDataResponse
 
     }
 }

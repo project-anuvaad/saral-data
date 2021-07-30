@@ -1,5 +1,7 @@
 import React from 'react'
 import { View, Text, TouchableOpacity, Image } from 'react-native';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import AppTheme from '../../../utils/AppTheme';
 import Strings from '../../../utils/Strings';
 
@@ -16,7 +18,8 @@ const ScanHistoryCard = ({
     onPressSave,
     showButtons,
     showContinueBtn,
-    scanStatusShow
+    scanStatusShow,
+    saveDataLocal
 }) => {
     return (
         <TouchableOpacity
@@ -71,6 +74,15 @@ const ScanHistoryCard = ({
                             <Text>{Strings.save_status}</Text>
                         </View>
                         <View style={[styles.scanLabelStyle, styles.scanLabelValueStyle, { borderBottomWidth: 1 }]}>
+                            <Text>{saveStatus}</Text>
+                        </View>
+                    </View>
+
+                    <View style={styles.scanCardStyle}>
+                        <View style={[styles.scanLabelStyle, styles.scanLabelKeyStyle, { borderBottomWidth: 1,borderTopWidth:0}]}>
+                            <Text>{Strings.absent_status}</Text>
+                        </View>
+                        <View style={[styles.scanLabelStyle, styles.scanLabelValueStyle, { borderBottomWidth: 1,borderTopWidth:0 }]}>
                             <Text>{saveStatus}</Text>
                         </View>
                     </View>
@@ -146,4 +158,15 @@ const styles = {
     }
 }
 
-export default ScanHistoryCard;
+
+const mapStateToProps = (state) => {
+    return {
+        saveDataLocal:state.saveDataLocal
+    }
+}
+
+const mapDispatchToProps = (dispatch) => {
+    return bindActionCreators({
+    }, dispatch)
+}
+export default connect(mapStateToProps, mapDispatchToProps)(ScanHistoryCard);

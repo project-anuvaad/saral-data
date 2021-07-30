@@ -8,6 +8,9 @@ import saveTelemetryReducer from './saveTelemetryReducer';
 import getScanStatusReducer from './getScanStatusReducer';
 import filteredDataReducer from './filteredDataReducer';
 import appUpdateReducer from './appUpdateReducer';
+import absentStudentReducer from './getAbsentStudentReducer';
+import saveAbsentStudentReducer from './saveAbsentStudentReducer';
+import  saveAbsentDataLocalReducer from './saveAbsentDataLocalReducer';
 
 export default {
     apiStatus: apiStatus,
@@ -19,5 +22,9 @@ export default {
     studentsAndExamData: getStudentsAndExamDataReducer,
     getScanStatusData: getScanStatusReducer,
     filteredData: filteredDataReducer,
-    appUpdateData: appUpdateReducer
+    appUpdateData: appUpdateReducer,
+    absentStudentDataResponse:absentStudentReducer,
+    saveAbsentStudent:saveAbsentStudentReducer,
+    saveDataLocal:saveAbsentDataLocalReducer,
+
 }
