@@ -202,7 +202,6 @@ class MyScanContainer extends Component {
                             let base64Data = []
                             if(scanType == SCAN_TYPES.PAT_TYPE) {
                                 let imgArr = data.split(',');
-                                console.log(scanType + " :: " + imgArr);
                                 let tableData = []
                                 let response = ""
                                 for (let i = 0; i < 14; i++) {
@@ -243,7 +242,6 @@ class MyScanContainer extends Component {
                                 this.props.OcrProcessLocal(table);
                             }
                             else if (scanType == SCAN_TYPES.SAT_TYPE) {
-                                console.log(scanType + ' :: ',JSON.parse(data));
                                 this.props.OcrProcessLocal(JSON.parse(data).students)
                                 
                                 if(loginData.storeTrainingData) {

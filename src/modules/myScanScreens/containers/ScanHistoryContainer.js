@@ -922,7 +922,7 @@ class ScanHistoryContainer extends Component {
     }
 
     render() {
-        const { isLoading, iconShow, loaderText, scanData, loginData, studentsExamData, onGoingData, completedData } = this.state;
+        const { isLoading, iconShow, loaderText, scanData, loginData, studentsExamData, onGoingData, completedData,saveDataLocal } = this.state;
         return (
             <View style={styles.container}>
                 <HeaderComponent
@@ -968,7 +968,8 @@ const mapStateToProps = (state) => {
         studentsAndExamData: state.studentsAndExamData,
         loginDataRes: state.loginData,
         saveTelemetry: state.saveTelemetry,
-        getScanStatusData: state.getScanStatusData
+        getScanStatusData: state.getScanStatusData,
+        saveDataLocal:state.saveDataLocal
 
     }
 }

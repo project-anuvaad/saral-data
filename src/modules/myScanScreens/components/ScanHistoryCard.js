@@ -1,6 +1,10 @@
-import React from 'react'
+import AsyncStorage from '@react-native-community/async-storage';
+import React, { useEffect } from 'react'
 import { View, Text, TouchableOpacity, Image } from 'react-native';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import AppTheme from '../../../utils/AppTheme';
+import { getAbsentStudentDataFromAsync, getTotalStudent, setTotalStudent } from '../../../utils/StorageUtils';
 import Strings from '../../../utils/Strings';
 
 const ScanHistoryCard = ({
@@ -16,8 +20,37 @@ const ScanHistoryCard = ({
     onPressSave,
     showButtons,
     showContinueBtn,
-    scanStatusShow
+    scanStatusShow,
 }) => {
+
+    const [totalAbsent,setTotalAbsent]=React.useState();
+
+    const [totalStudent,setTotalStudent]=React.useState();
+
+    const numberOfAbsentStudent = async () => {
+        return await AsyncStorage.getItem("save_absent_data_into_local");
+    }
+    const totalStudents = async () => {
+        return await AsyncStorage.getItem("save_total_student");
+    }
+
+     useEffect(()=>{
+        async function fetchData() {
+            const value= await numberOfAbsentStudent();
+            let res=await JSON.parse(value)
+            setTotalAbsent(res.length);
+          }
+
+        async function fetchTotalStudent() {
+            const value= await totalStudents();
+            let res=await JSON.parse(value)
+            setTotalStudent(res.length);
+          }
+          fetchData();
+          fetchTotalStudent();
+    },[]);
+
+
     return (
         <TouchableOpacity
             style={[styles.container, customContainerStyle]}
@@ -74,6 +107,15 @@ const ScanHistoryCard = ({
                             <Text>{saveStatus}</Text>
                         </View>
                     </View>
+
+                    <View style={styles.scanCardStyle}>
+                        <View style={[styles.scanLabelStyle, styles.scanLabelKeyStyle, { borderBottomWidth: 1, borderTopWidth: 0 }]}>
+                            <Text>{Strings.absent_status}</Text>
+                        </View>
+                        <View style={[styles.scanLabelStyle, styles.scanLabelValueStyle, { borderBottomWidth: 1, borderTopWidth: 0 }]}>
+                            <Text>{totalAbsent} of {totalStudent}</Text>
+                        </View>
+                    </View>
                 </View>
                 {/* <View style={{ width: '8%' }}>
                     <Image
@@ -84,7 +126,7 @@ const ScanHistoryCard = ({
                 </View> */}
             </View>
             <View style={{ marginBottom: '3%', width: '100%' }}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', width: '85%' }}>      
+                <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', width: '85%' }}>
                     {scanStatusShow &&
                         <TouchableOpacity
                             style={{ backgroundColor: AppTheme.WHITE, borderRadius: 4, width: showButtons ? '45%' : '80%', alignItems: 'center', justifyContent: 'center', elevation: 8, paddingVertical: 4 }}
@@ -92,27 +134,27 @@ const ScanHistoryCard = ({
                         >
                             <Text>{Strings.scan_status}</Text>
                         </TouchableOpacity>}
-                    {showButtons &&  
-                    <TouchableOpacity
-                        style={{ backgroundColor: AppTheme.PRIMARY_ORANGE, borderRadius: 4, width: '45%', alignItems: 'center', justifyContent: 'center', elevation: 8, paddingVertical: 4 }}
-                        onPress={onPressSave}
-                    >
-                        <Text style={{ color: AppTheme.WHITE }}>{Strings.save_scan}</Text>
-                    </TouchableOpacity>}
+                    {showButtons &&
+                        <TouchableOpacity
+                            style={{ backgroundColor: AppTheme.PRIMARY_ORANGE, borderRadius: 4, width: '45%', alignItems: 'center', justifyContent: 'center', elevation: 8, paddingVertical: 4 }}
+                            onPress={onPressSave}
+                        >
+                            <Text style={{ color: AppTheme.WHITE }}>{Strings.save_scan}</Text>
+                        </TouchableOpacity>}
                 </View>
-                </View>
-                <View style={{ marginBottom: '3%', width: '100%' }}>
-                {showContinueBtn && 
-                // scanStatus != 'Completed' &&
-                <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', width: '85%' }}>
-                    <TouchableOpacity
-                        style={{ backgroundColor: AppTheme.GREY, borderRadius: 4, width: '80%', alignItems: 'center', justifyContent: 'center', elevation: 8, paddingVertical: 4 }}
-                        onPress={onPressContinue}
-                    >
-                        <Text style={{ color: AppTheme.WHITE }}>{Strings.continue_scan}</Text>
-                    </TouchableOpacity>
-                </View>}
-                </View>
+            </View>
+            <View style={{ marginBottom: '3%', width: '100%' }}>
+                {showContinueBtn &&
+                    // scanStatus != 'Completed' &&
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', width: '85%' }}>
+                        <TouchableOpacity
+                            style={{ backgroundColor: AppTheme.GREY, borderRadius: 4, width: '80%', alignItems: 'center', justifyContent: 'center', elevation: 8, paddingVertical: 4 }}
+                            onPress={onPressContinue}
+                        >
+                            <Text style={{ color: AppTheme.WHITE }}>{Strings.continue_scan}</Text>
+                        </TouchableOpacity>
+                    </View>}
+            </View>
         </TouchableOpacity>
     );
 }
@@ -146,4 +188,5 @@ const styles = {
     }
 }
 
-export default ScanHistoryCard;
+
+export default (ScanHistoryCard);

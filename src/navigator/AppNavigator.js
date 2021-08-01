@@ -12,6 +12,7 @@ import LoginContainer from '../modules/loginScreens/containers/LoginContainer';
 import ScanHistoryContainer from "../modules/myScanScreens/containers/ScanHistoryContainer";
 import SelectDetailsContainer from "../modules/myScanScreens/containers/SelectDetailsContainer";
 import ScanStatusComponent from "../modules/myScanScreens/components/ScanStatusComponent";
+import AbsentUi from "../modules/AbsentUi/AbsentUi";
 
 const welcomeScreensStack = createStackNavigator(
     {
@@ -47,7 +48,10 @@ const MainStack = createStackNavigator(
         },
         scanDetails: {
             screen: ScanDetailsContainer
-        }
+        },
+        AbsentUi: {
+            screen: AbsentUi
+        },
     },
     {
         initialRouteName: 'dashboard',
