@@ -381,7 +381,6 @@ class SelectDetailsComponent extends Component {
         if(prevProps != this.props) {
             const { apiStatus, studentsAndExamData, loader, loginData, setLoginDataLocally, getScanStatusData, scanType,absentStudentDataResponse } = this.props
             const { calledApi, selectedClass, selectedSection, calledLogin, selectedClassId, callApi, scanStatusPayload, calledScanStaus, absentStatusPayload, calledAbsentStatus } = this.state
-            console.log("absentStudentData",absentStudentDataResponse);
             if (apiStatus && prevProps.apiStatus != apiStatus && apiStatus.error) {
                 if(calledApi || calledLogin || calledScanStaus || calledAbsentStatus) {                    
                     loader(false)

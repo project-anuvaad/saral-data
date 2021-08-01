@@ -99,7 +99,6 @@ const AbsentUi = ({
                 let absentList = _.filter(studentsData, (o) => o.isAbsent);
                 saveAbsentDetails(token);
                 setAbsentStudentDataIntoAsync(absentList);
-                console.log("if", absentList);
 
             }
             else if (!isTokenValid) {
@@ -138,7 +137,6 @@ const AbsentUi = ({
     }, [])
 
     useEffect(() => {
-        console.log("dummy", saveAbsentStudent, prevSaveRes);
         if (prevloginResponse && loginDataRes && prevloginResponse != loginDataRes) {
             setIsLoading(false);
             if (loginDataRes && loginDataRes.data && loginDataRes.status == 200) {

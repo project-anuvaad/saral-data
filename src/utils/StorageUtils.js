@@ -24,11 +24,6 @@ export const setAbsentStudentDataIntoAsync=async(data)=>{
     }
 }
 
-export const getAbsentStudentDataFromAsync = async () => {
-    let data= await AsyncStorage.getItem(SAVE_ABSENT_DATA_INTO_LOCAL);
-    console.log("json",JSON.parse(data));
-    return [1,2,3,4];
-}
 
 export const setTotalStudent=async(data)=>{
     let value=JSON.stringify(data);

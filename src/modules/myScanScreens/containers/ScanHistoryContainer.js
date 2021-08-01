@@ -923,8 +923,6 @@ class ScanHistoryContainer extends Component {
 
     render() {
         const { isLoading, iconShow, loaderText, scanData, loginData, studentsExamData, onGoingData, completedData,saveDataLocal } = this.state;
-        console.log("saveDataLocalInScanHistory",this.props);
-
         return (
             <View style={styles.container}>
                 <HeaderComponent
