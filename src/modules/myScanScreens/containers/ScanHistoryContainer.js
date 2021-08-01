@@ -11,7 +11,7 @@ import { OngoingScanDetailsAction } from '../../../flux/actions/apis/ongoingScan
 import { SaveOcrDataAction } from '../../../flux/actions/apis/saveOcrDataAction';
 import APITransport from '../../../flux/actions/transport/apitransport';
 import AsyncStorage from '@react-native-community/async-storage';
-import { getScanData, getLoginData, setScanData, getStudentsExamData, getLoginCred, setLoginData, setStudentsExamData, setFetchedScanData } from '../../../utils/StorageUtils'
+import { getScanData, getLoginData, setScanData, getStudentsExamData, getLoginCred, setLoginData, setStudentsExamData, setFetchedScanData, numberOfAbsentStudent } from '../../../utils/StorageUtils'
 import { cryptoText, validateToken } from '../../../utils/CommonUtils'
 import { LoginAction } from '../../../flux/actions/apis/loginAction';
 import { SaveTelemetryAction } from '../../../flux/actions/apis/saveTelemetryAction';
@@ -50,7 +50,8 @@ class ScanHistoryContainer extends Component {
             calledStudentsApi: '',
             studentsApiPayloadCount: 0,
             onGoingData: [],
-            completedData: []
+            completedData: [],
+            numberofAbsent:null
         }
 
         this.onBack = this.onBack.bind(this)
@@ -62,6 +63,13 @@ class ScanHistoryContainer extends Component {
             let scanData = await getScanData()
             let loginData = await getLoginData()
             let studentsExamData = await getStudentsExamData()
+            let absentStudent=await numberOfAbsentStudent();
+
+            let res=await JSON.parse(absentStudent)
+            this.setState({
+                numberofAbsent:res.length
+            }) 
+            
             if (scanData) {
                 this.setState({
                     scanData
@@ -159,7 +167,7 @@ class ScanHistoryContainer extends Component {
     }
 
     createCardData = async () => {
-        const { scanData, loginData, studentsExamData, fetchedScanStatus } = this.state
+        const { scanData, loginData, studentsExamData, fetchedScanStatus,numberofAbsent } = this.state
         
         const { filteredData } = this.props
         let filteredDataRsp = filteredData.response
@@ -275,6 +283,9 @@ class ScanHistoryContainer extends Component {
                                 let status = scanCount + fetchedCount == studentStrength ? 'Completed' : scanCount + fetchedCount + ' of ' + studentStrength
                                 // let status = sectionElement[0].class_code == "Class-11" && sectionElement[0].section == 'All' ? 'Completed' :  sectionElement.length+' of '+studentStrength
                                 let saveCountStatus = saveCount + fetchedCount == studentStrength ? 'Completed' : saveCount + fetchedCount + ' of ' + studentStrength
+                                
+                                let checkIsComplete = saveCount == scanCount && scanCount + numberofAbsent == studentStrength
+                                
                                 let obj = {
                                     className: sectionElement[0].class_code,
                                     section: sectionElement[0].section.trim(),
@@ -285,8 +296,18 @@ class ScanHistoryContainer extends Component {
                                     saveStatus: saveCountStatus
                                 }
 
-                                if (status == 'Completed' && saveCountStatus == 'Completed') {
-                                    completedScan.push(obj)
+                                if ((status == 'Completed' && saveCountStatus == 'Completed') && checkIsComplete) {
+                                    let objects = {
+                                        className: sectionElement[0].class_code,
+                                        section: sectionElement[0].section.trim(),
+                                        testId: sectionElement[0].exam_code,
+                                        testDate: sectionElement[0].exam_date,
+                                        sessionId: sectionElement[0].session_id,
+                                        scanStatus: status,
+                                        saveStatus: saveCountStatus,
+                                        absentStatus: numberofAbsent
+                                    }
+                                    completedScan.push(objects)
                                 }
                                 else {
                                     ongoingScan.push(obj)
@@ -324,7 +345,7 @@ class ScanHistoryContainer extends Component {
                                     if (o.section.trim().toUpperCase() != 'ALL') {
                                         let groupOngoingScanBySection = _.groupBy(groupOngoingScanByExamId[sectionElement[0].examCode], 'section')
                                         if (!groupOngoingScanBySection[sectionElement[0].Section]) {
-                                            this.setScanArrData(ongoingScan, completedScan, sectionElement, examDate, status, saveCountStatus)
+                                            this.setScanArrData(ongoingScan, completedScan, sectionElement, examDate, status, saveCountStatus,numberofAbsent)
                                         }
                                     }
                                 })
@@ -333,24 +354,24 @@ class ScanHistoryContainer extends Component {
                                     if (o.section.trim().toUpperCase() != 'ALL') {
                                         let groupCompletedScanBySection = _.groupBy(groupCompletedScanByExamId[sectionElement[0].examCode], 'section')
                                         if (!groupCompletedScanBySection[sectionElement[0].Section]) {
-                                            this.setScanArrData(ongoingScan, completedScan, sectionElement, examDate, status, saveCountStatus)
+                                            this.setScanArrData(ongoingScan, completedScan, sectionElement, examDate, status, saveCountStatus,numberofAbsent)
                                         }
                                     }
                                 })
                             } else {
-                                this.setScanArrData(ongoingScan, completedScan, sectionElement, examDate, status, saveCountStatus)
+                                this.setScanArrData(ongoingScan, completedScan, sectionElement, examDate, status, saveCountStatus,numberofAbsent)
                             }
                         })
                     })
                 })
             }
             else if (fetchedScanStatus.length == 0) {
-                this.createScanData(groupStudentsByClass, scanData)
+                this.createScanData(groupStudentsByClass, scanData,numberofAbsent)
             }
         }
     }
 
-    setScanArrData = (ongoingScan, completedScan, sectionElement, examDate, status, saveCountStatus) => {
+    setScanArrData = (ongoingScan, completedScan, sectionElement, examDate, status, saveCountStatus,numberofAbsent) => {
         let obj = {
             className: "Class-" + sectionElement[0].studyingClass,
             section: sectionElement[0].Section.trim(),
@@ -361,7 +382,17 @@ class ScanHistoryContainer extends Component {
             saveStatus: saveCountStatus
         }
         if (status == 'Completed' && saveCountStatus == 'Completed') {
-            completedScan.push(obj)
+            let objects = {
+                className: sectionElement[0].class_code,
+                section: sectionElement[0].section.trim(),
+                testId: sectionElement[0].exam_code,
+                testDate: sectionElement[0].exam_date,
+                sessionId: sectionElement[0].session_id,
+                scanStatus: status,
+                saveStatus: saveCountStatus,
+                absentStatus: numberofAbsent
+            }
+            completedScan.push(objects)
         }
         else {
             ongoingScan.push(obj)
@@ -373,7 +404,7 @@ class ScanHistoryContainer extends Component {
         })
     }
 
-    createScanData = (groupStudentsByClass, scanData) => {
+    createScanData = (groupStudentsByClass, scanData, numberofAbsent) => {
         const { filteredData } = this.props
         let response = filteredData.response
         let completedScan = []
@@ -444,7 +475,17 @@ class ScanHistoryContainer extends Component {
                         }
 
                         if (status == 'Completed' && saveCountStatus == 'Completed') {
-                            completedScan.push(obj)
+                            let objects = {
+                                className: sectionElement[0].class_code,
+                                section: sectionElement[0].section.trim(),
+                                testId: sectionElement[0].exam_code,
+                                testDate: sectionElement[0].exam_date,
+                                sessionId: sectionElement[0].session_id,
+                                scanStatus: status,
+                                saveStatus: saveCountStatus,
+                                absentStatus: numberofAbsent
+                            }
+                            completedScan.push(objects)
                         }
                         else {
                             ongoingScan.push(obj)
@@ -490,7 +531,17 @@ class ScanHistoryContainer extends Component {
             }
 
             if (status == 'Completed' && saveCountStatus == 'Completed') {
-                completedScan.push(obj)
+                let objects = {
+                    className: sectionElement[0].class_code,
+                    section: sectionElement[0].section.trim(),
+                    testId: sectionElement[0].exam_code,
+                    testDate: sectionElement[0].exam_date,
+                    sessionId: sectionElement[0].session_id,
+                    scanStatus: status,
+                    saveStatus: saveCountStatus,
+                    absentStatus: numberofAbsent
+                }
+                completedScan.push(objects)
             }
             else {
                 ongoingScan.push(obj)

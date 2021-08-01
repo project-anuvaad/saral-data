@@ -35,9 +35,11 @@ export const setTotalStudent=async(data)=>{
     }
 }
 
-export const getTotalStudent=async()=>{
-    let data= await AsyncStorage.getItem(SAVE_TOTAL_STUDENT);
-    return JSON.parse(data)
+export const numberOfAbsentStudent = async () => {
+    return await AsyncStorage.getItem("save_absent_data_into_local");
+}
+export const totalStudents = async () => {
+    return await AsyncStorage.getItem("save_total_student");
 }
 
 export const getData = async (key) => {
