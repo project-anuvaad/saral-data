@@ -77,7 +77,7 @@ const AbsentUi = ({
             examId: examId
         })
         let studentsList = JSON.parse(JSON.stringify(filteredStudents[0].data.studentsInfo))
-        let absentStudentlist = absentStudentDataResponse && absentStudentDataResponse.data[0].length > 0 ? JSON.parse(absentStudentDataResponse.data[0])[0].AbsentStudents : [];
+        let absentStudentlist = absentStudentDataResponse && absentStudentDataResponse.data.length > 0 ? JSON.parse(absentStudentDataResponse.data[0])[0].AbsentStudents : [];
         studentsList.forEach((element) => {
             element.isAbsent = false
             absentStudentlist.forEach(o => {
@@ -99,7 +99,6 @@ const AbsentUi = ({
                 let absentList = _.filter(studentsData, (o) => o.isAbsent);
                 saveAbsentDetails(token);
                 setAbsentStudentDataIntoAsync(absentList);
-
             }
             else if (!isTokenValid) {
                 loginAgain()
@@ -128,6 +127,7 @@ const AbsentUi = ({
 
     const saveAbsentDetails = (token) => {
         setIsLoading(true)
+        console.log("absentStudentDataResponse",absentStudentsData);
         let apiObj = new SaveAbsentDataAction(absentStudentsData, token)
         APITransport(apiObj);
     }

@@ -11,7 +11,7 @@ import Spinner from '../../common/components/loadingIndicator';
 import HeaderComponent from '../../common/components/HeaderComponent';
 import ScanDetailsComponent from '../components/ScanDetailsComponent';
 import APITransport from '../../../flux/actions/transport/apitransport';
-import { getLoginData, getStudentsExamData } from '../../../utils/StorageUtils'
+import { getLoginData, getStudentsExamData, numberOfAbsentStudent } from '../../../utils/StorageUtils'
 import { setScanData, getScanData } from '../../../utils/StorageUtils'
 import PopupDialog from '../components/PopupDialog';
 import { apkVersion } from '../../../configs/config'
@@ -61,7 +61,8 @@ class ScanDetailsContainer extends Component {
             predictedRoll: '',
             predictedMarksArr: [],
             wrongPredictedTelemetryRoll: [],
-            wrongPredictedTelemetryMarks: []
+            wrongPredictedTelemetryMarks: [],
+            absentStudentlist:[]
         }
         this.onBack = this.onBack.bind(this)
     }
@@ -78,6 +79,16 @@ class ScanDetailsContainer extends Component {
                     }
                 })
             }
+
+            async function fetchData() {
+                const value = await numberOfAbsentStudent();
+                let res = await JSON.parse(value)
+                this.setState({
+                    absentStudentlist : res
+                })
+            }
+
+            fetchData();
 
             if(params && params.base64Data && params.base64Data.length > 0) {
                 
@@ -136,7 +147,7 @@ class ScanDetailsContainer extends Component {
     }
 
     validateStudentId = async(studentId) => {
-        const { ongoingScanDetails } = this.props
+        const { ongoingScanDetails,absentStudentlist } = this.props
         
         let studentsExamData = await getStudentsExamData()
         let selectedClassStudentsExamData = []
@@ -193,12 +204,27 @@ class ScanDetailsContainer extends Component {
 
             if(studentIdCount.length == 1) {
                 // if(studentIdCount[0].studentIdValid) {
-                    this.setState({
-                        studentIdValid: true,
-                        stdErr: '',
-                        student_name: studentIdCount[0].studentName,
-                        studentObj: studentIdCount[0].studentObj
-                    })
+                    
+                   studentIdCount.forEach((element) => {
+                        absentStudentlist.forEach(o => {
+                            if (o.AadhaarUID == element.aadhaarUID) {
+                                this.setState({
+                                    studentIdValid: false,
+                                    stdErr: Strings.please_correct_student_id,
+                                    tabIndex: 1,
+                                    nextBtnClick: false
+                                })
+                            }else{
+                                this.setState({
+                                    studentIdValid: true,
+                                    stdErr: '',
+                                    student_name: studentIdCount[0].studentName,
+                                    studentObj: studentIdCount[0].studentObj
+                                })
+                            }
+                        })
+                    });
+                    
                     // return true
                 // }
             }

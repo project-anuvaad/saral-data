@@ -58,6 +58,7 @@ export default strings = new LocalizedStrings({
         marks_text: 'Marks',
         table_image_is_not_proper: 'Table image is not proper. Please try again.',
         please_correct_student_id: 'Please correct the Student Id',
+        please_correct_student_Uid: 'Please correct the student aadhar number',
         please_correct_exam_id: 'Please correct the Exam Id',
         district_list_error: 'Unable to fetch district list. Please try again.',
         block_list_error: 'Unable to fetch block list. Please select again district.',

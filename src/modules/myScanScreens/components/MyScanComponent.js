@@ -308,7 +308,7 @@ class MyScanComponent extends Component {
 const styles = {
     container1: {
         flex: 1,
-        marginHorizontal: '6%',
+        marginHorizontal: '4%',
         alignItems: 'center'
     },
     header1TextStyle: {
