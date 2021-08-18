@@ -1,6 +1,7 @@
 import { Platform } from 'react-native'
 const configs = {
-    BASE_URL: 'https://www.schoolattendancegujarat.org/api',
+    BASE_URL: 'https://www.saralgujarat.in/api',
+    // BASE_URL: 'https://www.schoolattendancegujarat.org/api',
     // BASE_URL: 'https://attendance-ss.gujarat.gov.in/api',
 }
 
