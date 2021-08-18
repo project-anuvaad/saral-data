@@ -16,6 +16,9 @@ import { setScanData, getScanData } from '../../../utils/StorageUtils'
 import PopupDialog from '../components/PopupDialog';
 import { apkVersion } from '../../../configs/config'
 import { SCAN_TYPES } from '../../../utils/CommonUtils';
+import {pat_questions} from './pat_questions';
+
+
 
 class ScanDetailsContainer extends Component {
     constructor(props) {
@@ -375,7 +378,7 @@ class ScanDetailsContainer extends Component {
                     return o
                 }
             })
-            
+            filterOcrByExam[0].questions=pat_questions;
             let sortedMarksArr = JSON.parse(JSON.stringify(finalOcrData[0].marks))            
             sortedMarksArr.sort(function(a, b){return a.question - b.question});
             
@@ -398,25 +401,29 @@ class ScanDetailsContainer extends Component {
         if(loginDataRes.data && loginDataRes.data.storeTrainingData) {
             let scanType = filteredData.response.scanType   
             let changeDigitBase64 = JSON.parse(JSON.stringify(wrongPredictedTelemetryMarks))
+            let classId=filteredData.response.class
             
-            if(scanType == SCAN_TYPES.SAT_TYPE) {                
-                for (let col = 0; col < 2; col++) {
-                    if(text.charAt(col) !== predictedMarksArr[index].mark.charAt(col)) {
+            if(scanType == SCAN_TYPES.SAT_TYPE ||  (scanType==SCAN_TYPES.PAT_TYPE && classId>=9)) {     
+                let rows = scanType == SCAN_TYPES.SAT_TYPE ? 6 : (scanType == SCAN_TYPES.PAT_TYPE && classId >= 9) && 12           
+                
+                for (let markCol = 0; markCol < 2; markCol++) {
+                    if(text.charAt(markCol) !== predictedMarksArr[index].mark.charAt(markCol)) {
                         changeDigitBase64.forEach((element, dataIndex) => {
-                            if(element.index == (index+1)+'_'+col) {
+                            if(element.index == (index+1)+'_'+markCol) {
                                 changeDigitBase64.splice(dataIndex, 1)
                             }
                         });
                         let row = index
-                        if(index >= 6) {
-                            row = index-6
+                        let col = (index >= rows && index< (2*rows)) ? 1 : (index >= (2*rows)) ? 2 : 0
+                        if(index >= rows) {
+                            row = index-rows
                         }
-                        let key = row + "_" + col + "_" + col;
+                        let key = row + "_" + col + "_" + markCol;
                         let obj = {
                             examType: scanType.toUpperCase(),
                             fieldType: 'mark',
-                            index: (index+1)+'_'+col,
-                            predictedDigit: predictedMarksArr[index].mark.charAt(col)
+                            index: (index+1)+'_'+markCol,
+                            predictedDigit: predictedMarksArr[index].mark.charAt(markCol)
                         }
                         for(let j=0; j<telemetryData.length; j++) {
                             let objectKey = Object.keys(telemetryData[j])[0]  
@@ -429,7 +436,7 @@ class ScanDetailsContainer extends Component {
                         changeDigitBase64.push(obj)
                     }else {
                         changeDigitBase64.forEach((element, dataIndex) => {
-                            if(element.index == (index+1)+'_'+col) {
+                            if(element.index == (index+1)+'_'+markCol) {
                                 changeDigitBase64.splice(dataIndex, 1)
                             }
                         });
@@ -447,21 +454,10 @@ class ScanDetailsContainer extends Component {
         const { predictedRoll, telemetryData } = this.state
         if(loginDataRes.data && loginDataRes.data.storeTrainingData) {
             let scanType = filteredData.response.scanType   
-            let changeDigitBase64 = []            
-            if(scanType == SCAN_TYPES.PAT_TYPE) {
-                for(let i=0; i<text.length; i++) {
-                    if(text.charAt(i) !== predictedRoll.charAt(i)) {
-                        changeDigitBase64.push({
-                            examType: scanType.toUpperCase(),
-                            fieldType: 'roll',
-                            index: i.toString(),
-                            predictedDigit: text.charAt(i),
-                            base64: telemetryData[i]
-                        })
-                    }
-                }
-            }
-            else if(scanType == SCAN_TYPES.SAT_TYPE) {                
+            let changeDigitBase64 = []        
+            let classId=filteredData.response.class
+            
+             if((scanType == SCAN_TYPES.PAT_TYPE && classId>=9) ||  scanType==SCAN_TYPES.SAT_TYPE) {                
                 for (let i = 0; i < 7; i++) {                    
                     if(text.charAt(i) !== predictedRoll.charAt(i)) {
                         let key = -1 + "_" + -1 + "_" + i;
@@ -481,7 +477,21 @@ class ScanDetailsContainer extends Component {
                         changeDigitBase64.push(obj)
                     }
                 }
+            }    
+           else if(scanType == SCAN_TYPES.PAT_TYPE) {
+                for(let i=0; i<text.length; i++) {
+                    if(text.charAt(i) !== predictedRoll.charAt(i)) {
+                        changeDigitBase64.push({
+                            examType: scanType.toUpperCase(),
+                            fieldType: 'roll',
+                            index: i.toString(),
+                            predictedDigit: text.charAt(i),
+                            base64: telemetryData[i]
+                        })
+                    }
+                }
             }
+           
             
             this.setState({
                 wrongPredictedTelemetryRoll: changeDigitBase64

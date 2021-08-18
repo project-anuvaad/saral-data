@@ -50,13 +50,13 @@ public class TableCornerCirclesDetection {
         DEBUG = debug;
     }
 
-    public Mat processMat(Mat image) {
+    public Mat processMat(Mat image, int minRadius, int maxRadius ) {
 
         Mat gray        = new Mat();
         Imgproc.cvtColor(image, gray, Imgproc.COLOR_BGR2GRAY);
         Imgproc.medianBlur(gray, gray, 5);
         Mat circles     = new Mat();
-        Imgproc.HoughCircles(gray, circles, Imgproc.CV_HOUGH_GRADIENT,1.5,100.0, 100.0, 30.0, 25, 30);
+        Imgproc.HoughCircles(gray, circles, Imgproc.CV_HOUGH_GRADIENT,1.5,100.0, 100.0, 30.0, minRadius, maxRadius);
 
         /**
          * Draw the detected circles.

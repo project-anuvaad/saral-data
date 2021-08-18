@@ -263,7 +263,7 @@ public class MarkSheetScannerActivity extends ReactActivity implements CameraBri
     }
 
     private void processCameraFrame(Mat image, long frameCount) {
-        Mat tableMat        = mTableCornerDetection.processMat(image);
+        Mat tableMat        = mTableCornerDetection.processMat(image,25,30);
 
         if (tableMat != null) {
             if (mTableDetectionTimeFirst == 0) {

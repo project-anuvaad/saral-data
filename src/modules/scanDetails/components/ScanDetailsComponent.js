@@ -175,7 +175,7 @@ class ScanDetailsComponent extends Component {
                 // onEndEditing={() => this.props.getExamID(testDate)}
                 />
                 
-                <View style={styles.container3}>
+                <View style={[styles.container3,{paddingBottom:'5%',}]}>
                     <ButtonComponent
                         customBtnStyle={[styles.cancelBtnStyle, { width: '35%' }]}
                         customBtnTextStyle={styles.editBtnTextStyle}
@@ -219,7 +219,7 @@ class ScanDetailsComponent extends Component {
                             <Text style={styles.nameTextStyle}>{Strings.roll_no + ': ' + '25'}</Text> */}
                             <Text style={styles.nameTextStyle}>{Strings.student_id + ': ' + studentId}</Text>
                             <Text style={styles.nameTextStyle}>{Strings.test_id + ': ' + testId}</Text>
-                        </View>
+                        </View> 
                     </View>
                 </View>
                 <Text style={styles.studentDetailsTxtStyle}>{Strings.marks_text}</Text>
@@ -395,7 +395,7 @@ const styles = {
         borderRadius: 4,
         elevation: 4,
         marginHorizontal: '5%',
-        paddingBottom: '5%',
+        // paddingBottom: '5%',
         backgroundColor: AppTheme.WHITE,
     },
     cancelBtnStyle: {
@@ -443,8 +443,6 @@ const styles = {
         // flex: 1,
         flexDirection: 'row',
         alignSelf: 'center',
-        paddingBottom: '5%',
-        paddingTop: '3%',
         width: '90%',
         borderBottomWidth: 1,
         borderBottomColor: AppTheme.LIGHT_GREY,

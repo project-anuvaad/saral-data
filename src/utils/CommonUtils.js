@@ -34,3 +34,40 @@ export const SCAN_TYPES = {
     SAT_TYPE: 'sat',
     PAT_TYPE: 'pat'
 }
+
+export const getQuestionsPAT_34 = (classId, subject, stream = null) => {
+    let question = 0
+    if(classId == 9) {
+      question = 10
+      if(subject=='math') {
+        question = 11
+      }
+    }
+    else if(classId == 10) {
+      if(subject == 'math') {
+        question = 34
+      } else if(subject == 'science') {
+        question = 33
+      } else if(subject == 'socialScience') {
+        question = 27
+      }
+    }
+    else if(classId == 12) {
+      if(stream && stream == 'sci') {
+        question = 32
+      }
+      else if(stream && stream == 'gen') {
+        question = 31
+        if(subject == '154') {
+          question = 20
+        } else if(subject == '046'){
+          question= 29
+        } else if(subject == '141'){
+          question= 30
+        } else if(subject == '136'){
+          question= 32
+        }
+      }
+    }
+    return question
+  }

@@ -12,6 +12,7 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.hwrecognisation.ocrapp.GJPATScannerActivity34;
 import com.hwrecognisation.ocrapp.GJSATScannerActivity;
 import com.hwrecognisation.ocrapp.MarkSheetScannerActivity;
 import com.hwrecognisation.ocrapp.SCANNER_TYPE;
@@ -56,6 +57,9 @@ public class RNOpenCvCameraModel extends ReactContextBaseJavaModule implements A
         }
         else if(scannerType == SCANNER_TYPE.SCANNER_PAT) {
             intent = new Intent(activity, MarkSheetScannerActivity.class);
+        }
+        else if (scannerType==SCANNER_TYPE.SCANNER_PAT34){
+            intent = new Intent(activity, GJPATScannerActivity34.class);
         }
         intent.putExtra("scanner", scannerType);
         intent.putExtra("NUMBER_POOL",rollArray.toString());
