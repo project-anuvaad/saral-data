@@ -62,10 +62,18 @@ class ScanDetailsContainer extends Component {
             predictedMarksArr: [],
             wrongPredictedTelemetryRoll: [],
             wrongPredictedTelemetryMarks: [],
-            absentStudentlist:[]
         }
         this.onBack = this.onBack.bind(this)
     }
+
+//    async fetchData(){
+//         const value = await numberOfAbsentStudent();
+//         let res = await JSON.parse(value)
+//         console.log("resource",res);
+//         this.setState({
+//             absentStudentlist : ["hello"]
+//         })
+//     }
 
     async componentDidMount() {
         const { navigation, ocrProcessLocal, ongoingScanDetails } = this.props
@@ -80,15 +88,8 @@ class ScanDetailsContainer extends Component {
                 })
             }
 
-            async function fetchData() {
-                const value = await numberOfAbsentStudent();
-                let res = await JSON.parse(value)
-                this.setState({
-                    absentStudentlist : res
-                })
-            }
-
-            fetchData();
+                
+            //    this.fetchData()
 
             if(params && params.base64Data && params.base64Data.length > 0) {
                 
@@ -147,9 +148,13 @@ class ScanDetailsContainer extends Component {
     }
 
     validateStudentId = async(studentId) => {
-        const { ongoingScanDetails,absentStudentlist } = this.props
+        const { ongoingScanDetails } = this.props
         
         let studentsExamData = await getStudentsExamData()
+        
+        const value = await numberOfAbsentStudent();
+        let absentStudentlist = await JSON.parse(value)
+       
         let selectedClassStudentsExamData = []
         if(studentsExamData) {
             // _.forEach(studentsExamData, (data, index) => {                
@@ -204,10 +209,10 @@ class ScanDetailsContainer extends Component {
 
             if(studentIdCount.length == 1) {
                 // if(studentIdCount[0].studentIdValid) {
-                    
+
                    studentIdCount.forEach((element) => {
                         absentStudentlist.forEach(o => {
-                            if (o.AadhaarUID == element.aadhaarUID) {
+                            if (o.aadhaarUID == element.studentAadhaar) {
                                 this.setState({
                                     studentIdValid: false,
                                     stdErr: Strings.please_correct_student_id,
