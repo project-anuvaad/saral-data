@@ -239,6 +239,7 @@ class ScanDetailsComponent extends Component {
                 </View>
 
                 {marksdetails.map((data, indexNumber) => {
+                    console.log("marksDetails",marksdetails);
                     return (
                         <View
                             style={{ flexDirection: 'row' }}

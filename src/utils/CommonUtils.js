@@ -38,7 +38,7 @@ export const SCAN_TYPES = {
 export const getQuestionsPAT_34 = (classId, subject, stream = null) => {
     let question = 0
     if(classId == 9) {
-      question = 10
+      question = 34
       if(subject=='math') {
         question = 11
       }

@@ -197,10 +197,12 @@ class MyScanContainer extends Component {
                     let scanType = filteredData.response.scanType
 
                     let classId = filteredData.response.class;
+                    // let classId = 9;
 
-                    let scanTypeInt = scanType == SCAN_TYPES.SAT_TYPE ? 1 : scanType == SCAN_TYPES.PAT_TYPE && classId <= 8 ? 2 : 3;
+                    let scanTypeInt = scanType == SCAN_TYPES.SAT_TYPE && classId <= 8 ? 1 : scanType == SCAN_TYPES.PAT_TYPE && classId <= 8 ? 2 : 3;
+                    // let scanTypeInt = 3;
                     let subject = filteredData.response.subject;
-
+                    console.log("scanTypeint",scanTypeInt);
                     RNOpenCvCameraModel.openScanCamera(JSON.stringify(uniqStudentsList), scanTypeInt)
                         .then(data => {
                             let base64Data = []
@@ -255,6 +257,7 @@ class MyScanContainer extends Component {
                                 });
                                 let portion_Array=sortedArray.slice(0,questionNumber);
                                 arrFormat.students[0].marks=portion_Array;
+                                console.log("arrFormat.students",arrFormat.students,"questionNumber",questionNumber);
                                 this.props.OcrProcessLocal(arrFormat.students);
                                 if (loginData.storeTrainingData) {
                                     JSON.parse(data).base64Data.forEach((element, index) => {

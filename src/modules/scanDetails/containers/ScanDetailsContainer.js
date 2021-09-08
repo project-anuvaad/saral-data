@@ -118,7 +118,7 @@ class ScanDetailsContainer extends Component {
 
                     const data = ocrProcessLocal.response;
                     let tempTable = data[0]
-
+                    console.log("tempTable",ocrProcessLocal.response);
                     this.setState({
                         predictedRoll: tempTable.roll,
                         predictedMarksArr: tempTable.marks.sort(function(a, b){return a.question - b.question})
@@ -198,7 +198,7 @@ class ScanDetailsContainer extends Component {
 
             studentList.forEach(element => {
                 let last7Digit = self.lastSevenDigit(element.aadhaarUID)
-
+                
                 if(last7Digit == studentId.trim()) {
                     let obj = {
                         // studentIdValid: true,
@@ -206,7 +206,11 @@ class ScanDetailsContainer extends Component {
                         studentObj: element,
                         studentAadhaar: element.aadhaarUID
                     }
-                    studentIdCount.push(obj)
+                    studentIdCount.push(obj);
+                    this.setState({
+                        studentIdValid : true
+                    })
+                   
                 }
             })
 
@@ -214,6 +218,8 @@ class ScanDetailsContainer extends Component {
                 // if(studentIdCount[0].studentIdValid) {
 
                    studentIdCount.forEach((element) => {
+                       absentStudentlist.length > 0 
+                       ?
                         absentStudentlist.forEach(o => {
                             if (o.aadhaarUID == element.studentAadhaar) {
                                 this.setState({
@@ -230,6 +236,13 @@ class ScanDetailsContainer extends Component {
                                     studentObj: studentIdCount[0].studentObj
                                 })
                             }
+                        })
+                        :
+                        this.setState({
+                            studentIdValid: true,
+                            stdErr: '',
+                            student_name: studentIdCount[0].studentName,
+                            studentObj: studentIdCount[0].studentObj
                         })
                     });
                     
@@ -269,6 +282,7 @@ class ScanDetailsContainer extends Component {
 
     createMarksTableData = (table) => {
         let rows = table[0].questions
+        console.log("table",rows);
             let arrayObj = {}
             let dataArray = []
             rows.forEach((element, index) => {
@@ -352,7 +366,7 @@ class ScanDetailsContainer extends Component {
         let studentsExamData = await getStudentsExamData()
 
         if(studentsExamData) {
-         
+
             let finalOcrData = JSON.parse(JSON.stringify(ocrData))
             let response = ongoingScanDetails.response
             let resOcr = []
@@ -371,20 +385,20 @@ class ScanDetailsContainer extends Component {
                     resOcr = JSON.parse(JSON.stringify(groupStudentDataBySection['All'][0].data.questionInfo))
                 }  
             }
-            
+
             let filterOcrByExam = _.filter(resOcr, function (o) {
 
-                if (o.examCode.trim() == examCode.trim()) {
+                if (o.examCode.trim() == examCode.trim()) { 
                     return o
                 }
             })
-            filterOcrByExam[0].questions=pat_questions;
+            // filterOcrByExam[0].questions=pat_questions;
             let sortedMarksArr = JSON.parse(JSON.stringify(finalOcrData[0].marks))            
             sortedMarksArr.sort(function(a, b){return a.question - b.question});
-            
-            for(let i = 0; i<filterOcrByExam[0].questions.length; i++) {                
 
-                filterOcrByExam[0].questions[i].obtainedMarks = sortedMarksArr[i].mark
+            for(let i = 0; i<filterOcrByExam[0].questions.length; i++) {
+
+                    filterOcrByExam[0].questions[i].obtainedMarks = sortedMarksArr[i].mark
             }
             
             this.setState({
@@ -535,7 +549,7 @@ class ScanDetailsContainer extends Component {
             this.state.wrongPredictedTelemetryMarks.forEach(element => {
                 finalTelemetryData.push(element)
             });
-            
+
             let obj = {
                 "session_id": this.props.ongoingScanDetails.response.sessionId,
                 "exam_date": this.state.testDate,
