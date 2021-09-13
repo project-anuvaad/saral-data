@@ -15,12 +15,16 @@ export const setData = async (key, value) => {
 
 export const setAbsentStudentDataIntoAsync=async(data)=>{
     let value=JSON.stringify(data);
-    let saved=await AsyncStorage.setItem(SAVE_ABSENT_DATA_INTO_LOCAL,value);
-    if (saved) {
-        return true
-    }
-    else{
-        return false
+    if (value==[]) {
+        AsyncStorage.removeItem(SAVE_ABSENT_DATA_INTO_LOCAL)
+    }else{
+        let saved=await AsyncStorage.setItem(SAVE_ABSENT_DATA_INTO_LOCAL,value);
+        if (saved) {
+            return true
+        }
+        else{
+            return false
+        }
     }
 }
 
