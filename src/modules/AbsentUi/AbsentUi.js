@@ -4,7 +4,7 @@ import { apkVersion } from '../../configs/config';
 
 
 //storage
-import { getStudentsExamData, getLoginCred,  setAbsentStudentDataIntoAsync, setTotalStudent } from '../../utils/StorageUtils';
+import { getStudentsExamData, getLoginCred, setAbsentStudentDataIntoAsync, setTotalStudent } from '../../utils/StorageUtils';
 
 import Strings from '../../utils/Strings';
 
@@ -31,10 +31,11 @@ const AbsentUi = ({
     APITransport,
     navigation,
     absentStudentDataResponse,
-    saveDataLocal,
-    saveAbsentStudent
+    saveAbsentStudent,
+    getScanStatusData
 }) => {
 
+    console.log("getScanStatusData", JSON.parse(getScanStatusData.data));
     function usePrevious(value) {
         const ref = useRef();
         useEffect(() => {
@@ -175,6 +176,7 @@ const AbsentUi = ({
         }
         let isAlreadyMarkedAbsent = _.find(fetchedAbsentList, (o) => o.AadhaarUID == data.aadhaarUID)
 
+        let scanedData = JSON.parse(getScanStatusData.data);
         if (data.isAbsent) {
             data.isAbsent = false
             if (isAlreadyMarkedAbsent) {
@@ -187,16 +189,22 @@ const AbsentUi = ({
                 setAbsentStudentsData((modified))
             }
         } else if (!data.isAbsent) {
-            data.isAbsent = true
-            if (isAlreadyMarkedAbsent) {
-                const modified = _.filter(absentStudentsData, (o) => o.aadhaarUID != data.aadhaarUID)
-                setAbsentStudentsData((modified))
+            const checkIsScanned = scanedData[0].EntryCompletedStudents.filter((o) => o.AadhaarUID === data.aadhaarUID);
+            if (checkIsScanned.length > 0) {
+                Alert.alert("student can't be mark as absent once scanned !")
+            }
+            else {
+                data.isAbsent = true
+                if (isAlreadyMarkedAbsent) {
+                    const modified = _.filter(absentStudentsData, (o) => o.aadhaarUID != data.aadhaarUID)
+                    setAbsentStudentsData((modified))
 
-            } else {
-                obj.isAbsent = 1
-                let absentStudentsDataArr = JSON.parse(JSON.stringify(absentStudentsData))
-                absentStudentsDataArr.push(obj)
-                setAbsentStudentsData(absentStudentsDataArr)
+                } else {
+                    obj.isAbsent = 1
+                    let absentStudentsDataArr = JSON.parse(JSON.stringify(absentStudentsData))
+                    absentStudentsDataArr.push(obj)
+                    setAbsentStudentsData(absentStudentsDataArr)
+                }
             }
         }
     }
@@ -266,7 +274,8 @@ const mapStateToProps = (state) => {
         loginDataRes: state.loginData,
         saveAbsentStudent: state.saveAbsentStudent,
         absentStudentDataResponse: state.absentStudentDataResponse,
-        saveDataLocal: state.saveDataLocal
+        saveDataLocal: state.saveDataLocal,
+        getScanStatusData: state.getScanStatusData
     }
 }
 

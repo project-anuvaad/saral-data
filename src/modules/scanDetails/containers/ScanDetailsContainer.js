@@ -215,13 +215,17 @@ class ScanDetailsContainer extends Component {
             })
 
             if(studentIdCount.length == 1) {
-                // if(studentIdCount[0].studentIdValid) {
 
-                   studentIdCount.forEach((element) => {
-                       absentStudentlist.length > 0 
-                       ?
-                        absentStudentlist.forEach(o => {
-                            if (o.aadhaarUID == element.studentAadhaar) {
+                   studentIdCount.map((element) => {
+                       if (absentStudentlist.length>0) {
+                           let temp =  absentStudentlist.filter(o => {
+                                           
+                                if (o.aadhaarUID == element.studentAadhaar) {
+                                    return true;
+                                }
+                            })
+
+                            if (temp.length>0) {
                                 this.setState({
                                     studentIdValid: false,
                                     stdErr: Strings.please_correct_student_id,
@@ -229,21 +233,24 @@ class ScanDetailsContainer extends Component {
                                     nextBtnClick: false
                                 })
                             }else{
-                                this.setState({
-                                    studentIdValid: true,
-                                    stdErr: '',
-                                    student_name: studentIdCount[0].studentName,
-                                    studentObj: studentIdCount[0].studentObj
-                                })
-                            }
-                        })
-                        :
+                                    this.setState({
+                                        studentIdValid: true,
+                                        stdErr: '',
+                                        student_name: studentIdCount[0].studentName,
+                                        studentObj: studentIdCount[0].studentObj
+                                    })
+                                }
+                       }
+                       else{
                         this.setState({
                             studentIdValid: true,
                             stdErr: '',
                             student_name: studentIdCount[0].studentName,
                             studentObj: studentIdCount[0].studentObj
                         })
+                       }
+                       
+
                     });
                     
                     // return true
