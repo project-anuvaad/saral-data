@@ -202,7 +202,6 @@ class MyScanContainer extends Component {
                     let scanTypeInt = scanType == SCAN_TYPES.SAT_TYPE && classId <= 8 ? 1 : scanType == SCAN_TYPES.PAT_TYPE && classId <= 8 ? 2 : 3;
                     // let scanTypeInt = 3;
                     let subject = filteredData.response.subject;
-                    console.log("scanTypeint",scanTypeInt);
                     RNOpenCvCameraModel.openScanCamera(JSON.stringify(uniqStudentsList), scanTypeInt)
                         .then(data => {
                             let base64Data = []
@@ -249,7 +248,6 @@ class MyScanContainer extends Component {
                                 this.props.OcrProcessLocal(table);
                             }
                             else if ( scanTypeInt == 3) {
-                                console.log(scanType + ' :: ', JSON.parse(data));
                                 let questionNumber=getQuestionsPAT_34(classId,subject);
                                 let arrFormat=JSON.parse(data);
                                 let sortedArray=arrFormat.students[0].marks.sort(function(a,b){
@@ -257,7 +255,6 @@ class MyScanContainer extends Component {
                                 });
                                 let portion_Array=sortedArray.slice(0,questionNumber);
                                 arrFormat.students[0].marks=portion_Array;
-                                console.log("arrFormat.students",arrFormat.students,"questionNumber",questionNumber);
                                 this.props.OcrProcessLocal(arrFormat.students);
                                 if (loginData.storeTrainingData) {
                                     JSON.parse(data).base64Data.forEach((element, index) => {
@@ -266,7 +263,6 @@ class MyScanContainer extends Component {
                                 }
                             }
                             else if (scanTypeInt ==1) {
-                                console.log(scanType + ' :: ', JSON.parse(data));
                                 this.props.OcrProcessLocal(JSON.parse(data).students)
 
                                 if (loginData.storeTrainingData) {
@@ -285,7 +281,6 @@ class MyScanContainer extends Component {
                         .catch((code, errorMessage) => {
                             this.setState({ isLoading: false, iconShow: false, loaderText: '' })
                             Alert.alert(Strings.message_text, Strings.table_image_is_not_proper)
-                            console.log("dataFailure", code, "Message", errorMessage);
                         });
                 }
             }

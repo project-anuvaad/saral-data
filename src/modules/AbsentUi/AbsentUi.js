@@ -35,7 +35,6 @@ const AbsentUi = ({
     getScanStatusData
 }) => {
 
-    console.log("getScanStatusData", JSON.parse(getScanStatusData.data));
     function usePrevious(value) {
         const ref = useRef();
         useEffect(() => {
@@ -128,7 +127,6 @@ const AbsentUi = ({
 
     const saveAbsentDetails = (token) => {
         setIsLoading(true)
-        console.log("absentStudentDataResponse",absentStudentsData);
         let apiObj = new SaveAbsentDataAction(absentStudentsData, token)
         APITransport(apiObj);
     }
@@ -175,8 +173,7 @@ const AbsentUi = ({
             createdOn: createdTime,
         }
         let isAlreadyMarkedAbsent = _.find(fetchedAbsentList, (o) => o.AadhaarUID == data.aadhaarUID)
-
-        let scanedData = JSON.parse(getScanStatusData.data);
+        let scanedData = getScanStatusData.data.length > 0 ? JSON.parse(getScanStatusData.data) : [];
         if (data.isAbsent) {
             data.isAbsent = false
             if (isAlreadyMarkedAbsent) {
@@ -189,7 +186,8 @@ const AbsentUi = ({
                 setAbsentStudentsData((modified))
             }
         } else if (!data.isAbsent) {
-            const checkIsScanned = scanedData[0].EntryCompletedStudents.filter((o) => o.AadhaarUID === data.aadhaarUID);
+            let scan = scanedData.length > 0 ? scanedData : []
+            const checkIsScanned = scan.length > 0 && scanedData[0].EntryCompletedStudents.filter((o) => o.AadhaarUID === data.aadhaarUID);
             if (checkIsScanned.length > 0) {
                 Alert.alert("student can't be mark as absent once scanned !")
             }

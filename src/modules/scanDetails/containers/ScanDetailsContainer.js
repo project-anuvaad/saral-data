@@ -72,7 +72,6 @@ class ScanDetailsContainer extends Component {
 //    async fetchData(){
 //         const value = await numberOfAbsentStudent();
 //         let res = await JSON.parse(value)
-//         console.log("resource",res);
 //         this.setState({
 //             absentStudentlist : ["hello"]
 //         })
@@ -118,7 +117,6 @@ class ScanDetailsContainer extends Component {
 
                     const data = ocrProcessLocal.response;
                     let tempTable = data[0]
-                    console.log("tempTable",ocrProcessLocal.response);
                     this.setState({
                         predictedRoll: tempTable.roll,
                         predictedMarksArr: tempTable.marks.sort(function(a, b){return a.question - b.question})
@@ -289,7 +287,6 @@ class ScanDetailsContainer extends Component {
 
     createMarksTableData = (table) => {
         let rows = table[0].questions
-        console.log("table",rows);
             let arrayObj = {}
             let dataArray = []
             rows.forEach((element, index) => {
