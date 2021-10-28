@@ -3,11 +3,8 @@ package com.hwrecognisation;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
-import android.os.SystemClock;
 import android.util.Log;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.ml.common.FirebaseMLException;
 import com.google.firebase.ml.custom.FirebaseCustomLocalModel;
 import com.google.firebase.ml.custom.FirebaseModelDataType;
@@ -25,10 +22,11 @@ import org.opencv.imgproc.Imgproc;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Arrays;
 
 public class HWClassifier {
-    private static final String TAG             = "HWClassifier";
+    private static final String TAG             = "SrlSDK::HWClassify";
+    private static HWClassifier mInstance       = null;
+
     /**
      * Name of the model file hosted with Firebase.
      */
@@ -55,11 +53,32 @@ public class HWClassifier {
 
     public PredictionListener                       predictionListener;
 
-    HWClassifier(Activity activity, PredictionListener listener) throws IOException {
+    public static HWClassifier getInstance() {
+        if (mInstance == null) {
+            mInstance   = new HWClassifier();
+        }
+        return mInstance;
+    }
+
+    private HWClassifier() {
+    }
+
+    public boolean isInitialized() {
+        if (mInterpreter != null) {
+            return true;
+        }
+        return false;
+    }
+
+    public void HWClassifierCallback(PredictionListener listener) throws IOException {
         predictionListener  = listener;
     }
 
-    public void initialize() {
+    public void setPredictionListener(PredictionListener listener) {
+        predictionListener  = listener;
+    }
+
+    public void initialize(HWClassifierStatusListener listener) {
         int[] inputDims = {DIM_BATCH_SIZE, DIM_IMG_SIZE_X, DIM_IMG_SIZE_Y, DIM_PIXEL_SIZE};
         int[] outputDims = {DIM_BATCH_SIZE, 10};
         try {
@@ -77,7 +96,9 @@ public class HWClassifier {
             FirebaseModelInterpreterOptions options =
                     new FirebaseModelInterpreterOptions.Builder(localSource).build();
             mInterpreter = FirebaseModelInterpreter.getInstance(options);
+            listener.OnModelLoadSuccess("model loading successful");
         } catch (FirebaseMLException e) {
+            listener.OnModelLoadError("model loading failed");
             e.printStackTrace();
         }
     }
@@ -143,16 +164,17 @@ public class HWClassifier {
                             float[][] output        = result.getOutput(0);
                             float[] probabilities   = output[0];
                             int digit               = getMarksValue(probabilities);
-                            predictionListener.OnPredictionSuccess(digit, id);
+                            predictionListener.OnPredictionSuccess(digit, probabilities[digit], id);
                         })
                         .addOnFailureListener(e -> {
                             e.printStackTrace();
-                            predictionListener.OnPredictionFailed("PREDICTION FAILED");
+                            Log.e(TAG, e.getMessage());
+                            predictionListener.OnPredictionFailed("PREDICTION FAILED", id);
                         });
 
             } catch (FirebaseMLException e) {
                 e.printStackTrace();
-                predictionListener.OnPredictionFailed("INVALID INTERPRETER");
+                predictionListener.OnPredictionFailed("INVALID INTERPRETER", id);
             }
         }
     }
@@ -162,7 +184,6 @@ public class HWClassifier {
         double max  = arr[0];
 
         for (int i = 1; i < arr.length; i++) {
-            Log.d(TAG, "preds : " + arr[i]);
             if (arr[i] > max) {
                 max = arr[i];
                 index = i;

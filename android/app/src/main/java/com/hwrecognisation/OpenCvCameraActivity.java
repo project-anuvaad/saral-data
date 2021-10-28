@@ -56,7 +56,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 public class OpenCvCameraActivity extends ReactActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
-    private static String TAG   =   "opencv";
+    final private static String TAG   =   "SrlSDK::Scanner";
 
     private CameraBridgeViewBase mCvCamView;
     Mat mRgba;
@@ -79,29 +79,12 @@ public class OpenCvCameraActivity extends ReactActivity implements CameraBridgeV
     Mat                                 imgCloned;
     VideoWriter                         videoWriter;
 
-    private HWClassifier                hwClassifier;
     private HashMap<String, Integer>    digitPredsMap;
     private List<List<Mat>>             digitMats;
     private int                         frameCount;
     private int                         stuIDframeCount;
     private int                         maxSkipFrameCount;
-    private PredictionListener          predictionListener;
-
     long startTime;
-
-    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
-        @Override
-        public void onManagerConnected(int status) {
-            switch (status) {
-                case LoaderCallbackInterface.SUCCESS:
-                    mCvCamView.enableView();
-                    break;
-                default:
-                    super.onManagerConnected(status);
-                    break;
-            }
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,56 +100,17 @@ public class OpenCvCameraActivity extends ReactActivity implements CameraBridgeV
         mCvCamView.setCvCameraViewListener(this);
         mCvCamView.setMaxFrameSize(MAX_WIDTH, MAX_HEIGHT);
         mCvCamView.enableFpsMeter();
+        mCvCamView.enableView();
+
         cameraDistance = mCvCamView.getCameraDistance();
         Log.d(TAG, "cameraDistancecameraDistance :: "+ cameraDistance);
         mCvCamView.setCameraIndex(0); // front-camera(1),  back-camera(0)
-        mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
 
-        predictionListener  = new PredictionListener() {
-            @Override
-            public void OnPredictionSuccess(int digit, String id) {
-                digitPredsMap.put(id, new Integer(digit));
-                Log.d(TAG, "Prediction :: id :: " + id + " Digit ::" + digit + " Total contours :: " + detectedContours + "Received prediction :: " + digitPredsMap.size() );
-                if (detectedContours == digitPredsMap.size()) {
-                    detectedContours    = 0;
-                    String response     = getPredictionResponse(digitPredsMap);
-
-                    /**
-                     * This should be removed. This is just for testing
-                     */
-//                    String originalImageFilename    = saveImage(imgCloned, "original");
-//                    Mat sharped                     = imgCloned.clone();
-//                    Imgproc.cvtColor(sharped, sharped, Imgproc.COLOR_BGR2GRAY);
-//                    Imgproc.adaptiveThreshold(sharped, sharped, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 5, 4);
-
-                    ReactInstanceManager mReactInstanceManager  = getReactNativeHost().getReactInstanceManager();
-                    ReactContext reactContext                   = mReactInstanceManager.getCurrentReactContext();
-                    Intent sendData                             = new Intent(reactContext, OpenCvCameraActivity.class);
-//                    String sharpedImage                         = saveImage(sharped, "sharped");
-
-                    sendData.putExtra("fileName", response);
-                    mReactInstanceManager.onActivityResult(null, 1, 2, sendData);
-                    long endTime = SystemClock.uptimeMillis();
-                    System.out.println("Timecost to predict: " + (endTime - startTime) + " Start time : "+startTime+ " endTime : "+endTime);
-                    digitPredsMap   = null;
-                    digitMats       = null;
-                    frameCount      = 0;
-                    stuIDframeCount = 0;
-                    maxSkipFrameCount=0;
-                }
-            }
-
-            @Override
-            public void OnPredictionFailed(String error) {
-
-            }
-        };
         digitPredsMap   = new HashMap<String, Integer>();
         digitMats       = new ArrayList<List<Mat>>();
         frameCount      = 0;
         stuIDframeCount = 0;
         maxSkipFrameCount=0;
-//        deleteImageFromGallery("");
     }
 
     private String getPredictionResponse(HashMap<String, Integer> predict) {
@@ -220,21 +164,45 @@ public class OpenCvCameraActivity extends ReactActivity implements CameraBridgeV
     @Override
     public void onResume() {
         super.onResume();
-        if (!OpenCVLoader.initDebug()) {
-            Log.d(TAG, "onResume :: Internal OpenCV library not found.");
-            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_4_0, this, mLoaderCallback);
-        } else {
-            Log.d(TAG, "onResume :: OpenCV library found inside package. Using it!");
-            mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
-        }
+        HWClassifier.getInstance().setPredictionListener(new PredictionListener() {
+            @Override
+            public void OnPredictionSuccess(int digit, float confidence, String id) {
+                digitPredsMap.put(id, new Integer(digit));
+                Log.d(TAG, "Prediction :: id :: " + id + " Digit ::" + digit + " Total contours :: " + detectedContours + "Received prediction :: " + digitPredsMap.size() );
+                if (detectedContours == digitPredsMap.size()) {
+                    detectedContours    = 0;
+                    String response     = getPredictionResponse(digitPredsMap);
 
-        try {
-            hwClassifier    = new HWClassifier(OpenCvCameraActivity.this, predictionListener);
-            hwClassifier.initialize();
-            Log.d(TAG, "Loading HWClassifier successfully");
-        } catch (IOException e) {
-            Log.e(TAG, "Failed to load HWClassifier", e);
-        }
+                    /**
+                     * This should be removed. This is just for testing
+                     */
+//                    String originalImageFilename    = saveImage(imgCloned, "original");
+//                    Mat sharped                     = imgCloned.clone();
+//                    Imgproc.cvtColor(sharped, sharped, Imgproc.COLOR_BGR2GRAY);
+//                    Imgproc.adaptiveThreshold(sharped, sharped, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 5, 4);
+
+                    ReactInstanceManager mReactInstanceManager  = getReactNativeHost().getReactInstanceManager();
+                    ReactContext reactContext                   = mReactInstanceManager.getCurrentReactContext();
+                    Intent sendData                             = new Intent(reactContext, OpenCvCameraActivity.class);
+//                    String sharpedImage                         = saveImage(sharped, "sharped");
+
+                    sendData.putExtra("fileName", response);
+                    mReactInstanceManager.onActivityResult(null, 1, 2, sendData);
+                    long endTime = SystemClock.uptimeMillis();
+                    System.out.println("Timecost to predict: " + (endTime - startTime) + " Start time : "+startTime+ " endTime : "+endTime);
+                    digitPredsMap   = null;
+                    digitMats       = null;
+                    frameCount      = 0;
+                    stuIDframeCount = 0;
+                    maxSkipFrameCount=0;
+                }
+            }
+
+            @Override
+            public void OnPredictionFailed(String error, String id) {
+                Log.e(TAG, "Model prediction failed");
+            }
+        });
     }
 
     public void onDestroy() {
@@ -1472,8 +1440,8 @@ public class OpenCvCameraActivity extends ReactActivity implements CameraBridgeV
     }
 
     private void predictDigit(Mat m, String id) {
-        if(hwClassifier != null) {
-            hwClassifier.classifyMat(m, id);
+        if(HWClassifier.getInstance() != null) {
+            HWClassifier.getInstance().classifyMat(m, id);
         }
     }
 

@@ -19,19 +19,58 @@ import com.hwrecognisation.ocrapp.SCANNER_TYPE;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.opencv.android.BaseLoaderCallback;
+import org.opencv.android.LoaderCallbackInterface;
+import org.opencv.android.OpenCVLoader;
+
 import static com.facebook.react.views.textinput.ReactTextInputManager.TAG;
 
 public class RNOpenCvCameraModel extends ReactContextBaseJavaModule implements ActivityEventListener {
     private static Boolean isOn = false;
-
-
-
     Promise mPromise;
+    private static final String TAG             = "SrlSDK::Module";
 
+    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(getReactApplicationContext()) {
+        @Override
+        public void onManagerConnected(int status) {
+            switch (status) {
+                case LoaderCallbackInterface.SUCCESS:
+                {
+                    Log.i(TAG, "OpenCV loaded successfully");
+                } break;
+                default:
+                {
+                    super.onManagerConnected(status);
+                } break;
+            }
+        }
+    };
 
     public RNOpenCvCameraModel(ReactApplicationContext reactContext) {
         super(reactContext);
         reactContext.addActivityEventListener(this);
+
+        Log.d(TAG, "SaralSDKModule loaded, trying to load OpenCV libs & Models");
+        if (!OpenCVLoader.initDebug()) {
+            Log.d(TAG, "Internal OpenCV library not found. Using OpenCV Manager for initialization");
+            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION, getReactApplicationContext(), mLoaderCallback);
+        } else {
+            Log.d(TAG, "OpenCV library found inside package. Using it!");
+            mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+        }
+        HWClassifier.getInstance();
+        Log.d(TAG, "Loading HWClassifer models");
+        HWClassifier.getInstance().initialize(new HWClassifierStatusListener() {
+            @Override
+            public void OnModelLoadSuccess(String message) {
+                Log.d(TAG, "HWClassifer model loaded : " + message);
+            }
+
+            @Override
+            public void OnModelLoadError(String message) {
+                Log.d(TAG, "HWClassifer model cannot be loaded :" + message);
+            }
+        });
     }
 
 
