@@ -31,7 +31,7 @@ public class HWClassifier {
      * Name of the model file hosted with Firebase.
      */
     private static final String HOSTED_MODEL_NAME = null;
-    private static final String LOCAL_MODEL_ASSET = "trained_resnet_model_v2_10.tflite";
+    private static final String LOCAL_MODEL_ASSET = "digit_trained_model_resnet.tflite";
 
     /**
      * Dimensions of inputs.
@@ -80,7 +80,7 @@ public class HWClassifier {
 
     public void initialize(HWClassifierStatusListener listener) {
         int[] inputDims = {DIM_BATCH_SIZE, DIM_IMG_SIZE_X, DIM_IMG_SIZE_Y, DIM_PIXEL_SIZE};
-        int[] outputDims = {DIM_BATCH_SIZE, 11};
+        int[] outputDims = {DIM_BATCH_SIZE, 10};
         try {
             int firebaseModelDataType = FirebaseModelDataType.FLOAT32;
             mDataOptions =
