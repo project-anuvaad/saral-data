@@ -37,7 +37,8 @@ public class DetectShaded {
         Rect rect           = new Rect(left, top, right - left, bottom - top);
         Mat croppedImage    = new Mat(bw_img.clone(), rect);
         int total           = Core.countNonZero(croppedImage);
-        double pixel        = total / croppedImage.width()*croppedImage.height();
+        double area         = croppedImage.width()*croppedImage.height();
+        double pixel        = (total/ area) * 100;
 
         if (DEBUG) {
             Log.d(TAG, "input image width: " + image.width() + " height: " + image.height());

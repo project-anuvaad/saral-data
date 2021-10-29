@@ -206,7 +206,7 @@ public class SaralSDKOpenCVScannerActivity extends ReactActivity implements Came
     }
 
     private void processCameraFrame(Mat image, long frameCount) {
-        double DARKNESS_THRESHOLD   = 80.0;
+        double DARKNESS_THRESHOLD   = 70.0;
         Mat tableMat                = mTableCornerDetection.processMat(image);
         mStartTime                  = SystemClock.uptimeMillis();
 

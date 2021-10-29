@@ -129,7 +129,7 @@ public class GJScannerAndROIs {
             JSONObject res13 = new JSONObject();
             res13.put("13", "0");
             respTable.put(res13);
-            
+
             resp.put("table", respTable);
         } catch (JSONException e) {
             Log.e(TAG, "Unable to parse Saral specs, failed to create response");
