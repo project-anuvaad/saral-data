@@ -95,6 +95,41 @@ public class GJScannerAndROIs {
                     }
                 }
             }
+            /**
+             * putting dummy data.
+             */
+            JSONObject res6 = new JSONObject();
+            res6.put("6", "0");
+            respTable.put(res6);
+
+            JSONObject res7 = new JSONObject();
+            res7.put("7", "0");
+            respTable.put(res7);
+
+            JSONObject res8 = new JSONObject();
+            res8.put("8", "0");
+            respTable.put(res8);
+
+            JSONObject res9 = new JSONObject();
+            res9.put("9", "0");
+            respTable.put(res9);
+
+            JSONObject res10 = new JSONObject();
+            res10.put("10", "0");
+            respTable.put(res10);
+
+            JSONObject res11 = new JSONObject();
+            res11.put("11", "0");
+            respTable.put(res11);
+
+            JSONObject res12 = new JSONObject();
+            res12.put("12", "0");
+            respTable.put(res12);
+
+            JSONObject res13 = new JSONObject();
+            res13.put("13", "0");
+            respTable.put(res13);
+            
             resp.put("table", respTable);
         } catch (JSONException e) {
             Log.e(TAG, "Unable to parse Saral specs, failed to create response");
