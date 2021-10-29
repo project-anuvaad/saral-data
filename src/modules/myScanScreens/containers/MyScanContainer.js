@@ -235,7 +235,6 @@ class MyScanContainer extends Component {
                                             question: i,
                                             mark: tempTable[i][i]
                                         }
-                                        console.log("tempTAble",tempTable[i][i]);
                                         marksArr.push(marksObj)
                                     }
                                     else if (i > 6 && i <= 13) {
@@ -244,7 +243,6 @@ class MyScanContainer extends Component {
                                         }
                                     }
                                 }
-                                console.log("marksArr",marksArr);
                                 studentObj.marks = marksArr
                                 let table = []
                                 table.push(studentObj)
