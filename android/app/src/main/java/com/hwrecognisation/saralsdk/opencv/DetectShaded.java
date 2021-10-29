@@ -1,28 +1,23 @@
-package com.hwrecognisation.opencv;
+package com.hwrecognisation.saralsdk.opencv;
 
 import android.util.Log;
 
-import com.hwrecognisation.commons.CVOperations;
+import com.hwrecognisation.saralsdk.commons.CVOperations;
 
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
 import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
-import java.util.HashMap;
-
 public class DetectShaded {
-    private static final String  TAG                = "OCRApp::DetectShaded";
+    private static final String  TAG                = "SrlSDK::DetectShaded";
     private boolean DEBUG                           = false;
-    private HashMap<String, Mat> mMats      = new HashMap<>();
     public DetectShaded(boolean debug){
         DEBUG = debug;
-    }
-
-    public HashMap<String, Mat> getmMats() {
-        return mMats;
     }
 
     public double getShadedPercentage(Mat image, int top, int left, int bottom, int right) {
@@ -52,11 +47,18 @@ public class DetectShaded {
         return pixel;
     }
 
-    public Mat getROIMat(Mat image, int top, int left, int bottom, int right, String id) {
+    public Mat getROIMat(Mat image, int top, int left, int bottom, int right) {
         Rect rect           = new Rect(left, top, right - left, bottom - top);
         Mat croppedImage    = new Mat(image.clone(), rect);
-        mMats.put(id, resizeImage(croppedImage));
-        return resizeImage(croppedImage);
+        Mat resizedImage    = resizeImage(croppedImage);
+
+        if (DEBUG) {
+            Log.d(TAG, "input image width: " + resizedImage.width() + " height: " + resizedImage.height());
+            Log.d(TAG, "rows: " + resizedImage.rows() + " cols: " + resizedImage.cols());
+            CVOperations.saveImage(resizedImage, "rows-", 3, false);
+        }
+
+        return resizedImage;
     }
     /**
      * Resize the rect to 28x28 size.

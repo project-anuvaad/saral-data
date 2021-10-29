@@ -1,8 +1,8 @@
-package com.hwrecognisation.opencv;
+package com.hwrecognisation.saralsdk.opencv;
 
 import android.util.Log;
 
-import com.hwrecognisation.commons.CVOperations;
+import com.hwrecognisation.saralsdk.commons.CVOperations;
 
 import org.opencv.calib3d.Calib3d;
 import org.opencv.core.CvType;
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TableCornerCirclesDetection {
-    private static final String  TAG        = "OCRApp::TableDetector";
+    private static final String  TAG        = "SrlSDK::TableDetector";
     private boolean DEBUG                   = false;
     private double mROI                     = 0.0;
     private Point mTopLeft, mTopRight, mBottomLeft, mBottomRight;
@@ -44,25 +44,24 @@ public class TableCornerCirclesDetection {
         return mROI;
     }
 
-
-
     public TableCornerCirclesDetection(boolean debug){
         DEBUG = debug;
     }
 
-    public Mat processMat(Mat image, int minRadius, int maxRadius ) {
+    public Mat processMat(Mat image) {
 
         Mat gray        = new Mat();
         Imgproc.cvtColor(image, gray, Imgproc.COLOR_BGR2GRAY);
         Imgproc.medianBlur(gray, gray, 5);
         Mat circles     = new Mat();
-        Imgproc.HoughCircles(gray, circles, Imgproc.CV_HOUGH_GRADIENT,1.5,100.0, 100.0, 30.0, minRadius, maxRadius);
+//        Imgproc.HoughCircles(gray, circles, Imgproc.CV_HOUGH_GRADIENT,1.5,100.0, 100.0, 30.0, 25, 30);
+        Imgproc.HoughCircles(gray, circles, Imgproc.CV_HOUGH_GRADIENT,1.5,100.0, 100.0, 30.0, 15, 20);
 
         /**
          * Draw the detected circles.
          */
         if (DEBUG)
-            Imgproc.circle(image, new Point(0, 0), 5, new Scalar(40.0, 224.0, 125.0), 10);
+            drawDetectedCircles(image, circles);
 
         if (circles.cols() > 0) {
             Point topLeft, topRight;
@@ -127,6 +126,20 @@ public class TableCornerCirclesDetection {
         Mat capturedImage       = image.clone();
         Mat croppedImage        = homographicTransformation(capturedImage, topRight, bottomRight, topLeft, bottomLeft);
         return croppedImage;
+    }
+
+    private final void drawDetectedCircles(Mat src, Mat circles) {
+        if (circles.cols() > 0) {
+            for (int x = 0; x < circles.cols(); x++) {
+                double[] c = circles.get(0, x);
+                Point center = new Point(Math.round(c[0]), Math.round(c[1]));
+                // circle center
+                Imgproc.circle(src, center, 1, new Scalar(0,100,100), 3, 8, 0 );
+                // circle outline
+                int radius = (int) Math.round(c[2]);
+                Imgproc.circle(src, center, radius, new Scalar(255,0,255), 3, 8, 0 );
+            }
+        }
     }
 
     private final void drawPOIArea(Mat image, Point topLeft, Point topRight, Point bottomLeft, Point bottomRight) {

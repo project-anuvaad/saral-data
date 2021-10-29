@@ -1,4 +1,4 @@
-package com.hwrecognisation.opencv;
+package com.hwrecognisation.saralsdk.opencv;
 
 import android.util.Log;
 
@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DetectTexts {
-    private static final String  TAG                = "OCRApp::Text";
+    private static final String  TAG                = "SrlSDK::Text";
     private boolean DEBUG                           = false;
     private static final Scalar RED_COLOR           = new Scalar(255.0, 0.0, 0.0);
     private static final Scalar GREEN_COLOR         = new Scalar(0.0, 255.0, 0.0);

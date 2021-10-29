@@ -6,5 +6,5 @@
     <org.opencv.android.JavaCameraView
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:id="@+id/up_pat_scanner_activity_surface_view" />
+        android:id="@+id/camera_scanner_activity_surface_view" />
 </LinearLayout>

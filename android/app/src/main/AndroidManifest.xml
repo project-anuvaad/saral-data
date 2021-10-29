@@ -44,22 +44,24 @@
         android:windowSoftInputMode="adjustResize"
         android:screenOrientation="portrait"
         android:exported="true" />
-        <activity
-            android:name=".OpenCvCameraActivity"
-            android:screenOrientation="portrait">
-            <meta-data
-                android:name="android.notch_support"
-                android:value="true" />
-        </activity>
-        <activity android:name=".ocrapp.MarkSheetScannerActivity" />
-        <activity android:name=".ocrapp.GJSATScannerActivity"
-            android:screenOrientation="landscape"
-            tools:ignore="LockedOrientationActivity">
-        </activity>
-        <activity android:name=".ocrapp.GJPATScannerActivity34"
-            android:screenOrientation="landscape"
-            tools:ignore="LockedOrientationActivity">
-        </activity>
+
+<!--        <activity-->
+<!--            android:name=".OpenCvCameraActivity"-->
+<!--            android:screenOrientation="portrait">-->
+<!--            <meta-data-->
+<!--                android:name="android.notch_support"-->
+<!--                android:value="true" />-->
+<!--        </activity>-->
+        <activity android:name=".saralsdk.SaralSDKOpenCVScannerActivity" />
+
+<!--        <activity android:name=".ocrapp.GJSATScannerActivity"-->
+<!--            android:screenOrientation="landscape"-->
+<!--            tools:ignore="LockedOrientationActivity">-->
+<!--        </activity>-->
+<!--        <activity android:name=".ocrapp.GJPATScannerActivity34"-->
+<!--            android:screenOrientation="landscape"-->
+<!--            tools:ignore="LockedOrientationActivity">-->
+<!--        </activity>-->
         <!-- <intent-filter>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />

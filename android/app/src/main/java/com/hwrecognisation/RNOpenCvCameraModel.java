@@ -12,10 +12,11 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
-import com.hwrecognisation.ocrapp.GJPATScannerActivity34;
-import com.hwrecognisation.ocrapp.GJSATScannerActivity;
-import com.hwrecognisation.ocrapp.MarkSheetScannerActivity;
-import com.hwrecognisation.ocrapp.SCANNER_TYPE;
+
+import com.hwrecognisation.saralsdk.GJScannerAndROIs;
+import com.hwrecognisation.saralsdk.SaralSDKOpenCVScannerActivity;
+import com.hwrecognisation.saralsdk.hwmodel.HWClassifier;
+import com.hwrecognisation.saralsdk.hwmodel.HWClassifierStatusListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,10 +24,8 @@ import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 
-import static com.facebook.react.views.textinput.ReactTextInputManager.TAG;
-
 public class RNOpenCvCameraModel extends ReactContextBaseJavaModule implements ActivityEventListener {
-    private static Boolean isOn = false;
+    private static Boolean isOn                 = false;
     Promise mPromise;
     private static final String TAG             = "SrlSDK::Module";
 
@@ -74,15 +73,15 @@ public class RNOpenCvCameraModel extends ReactContextBaseJavaModule implements A
     }
 
 
-    @ReactMethod
-    void getCameraData(Promise promise) {
-
-        mPromise = promise;
-        final Activity activity = getCurrentActivity();
-        Intent intent = new Intent(activity, OpenCvCameraActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        getReactApplicationContext().startActivity(intent);
-    }
+//    @ReactMethod
+//    void getCameraData(Promise promise) {
+//
+//        mPromise = promise;
+//        final Activity activity = getCurrentActivity();
+//        Intent intent = new Intent(activity, OpenCvCameraActivity.class);
+//        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//        getReactApplicationContext().startActivity(intent);
+//    }
 
     @ReactMethod
     void openScanCamera(String rollNumberList, int scannerType, Promise promise) throws JSONException {
@@ -90,23 +89,15 @@ public class RNOpenCvCameraModel extends ReactContextBaseJavaModule implements A
         Log.d(TAG, "NumberPool-OpenCamera  :: "+rollArray);
         mPromise = promise;
         final Activity activity = getCurrentActivity();
-        Intent intent = new Intent();
-        if(scannerType == SCANNER_TYPE.SCANNER_SAT) {
-            intent = new Intent(activity, GJSATScannerActivity.class);
-        }
-        else if(scannerType == SCANNER_TYPE.SCANNER_PAT) {
-            intent = new Intent(activity, MarkSheetScannerActivity.class);
-        }
-        else if (scannerType==SCANNER_TYPE.SCANNER_PAT34){
-            intent = new Intent(activity, GJPATScannerActivity34.class);
-        }
+
+        Intent intent   = new Intent();
+        intent          = new Intent(activity, SaralSDKOpenCVScannerActivity.class);
         intent.putExtra("scanner", scannerType);
         intent.putExtra("NUMBER_POOL",rollArray.toString());
+
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         getReactApplicationContext().startActivity(intent);
     }
-
-
 
     @ReactMethod
     void cancelActivity(Promise promise) {
@@ -136,11 +127,10 @@ public class RNOpenCvCameraModel extends ReactContextBaseJavaModule implements A
     @Override
     public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data) {
         if (requestCode == 1) {
-            Log.d(TAG, "DatagetDataString"+data.getDataString());
-            //example for handling success response
-            this.mPromise.resolve(data.getStringExtra("fileName")); // you can further process this data in react native component.
-
+            Log.d(TAG, "Response: " + data.getStringExtra("layoutConfigsResult"));
+            this.mPromise.resolve(data.getStringExtra("layoutConfigsResult"));
         }
+
         else if(requestCode == 0) {
             showToast(data.getStringExtra("message"));
 //            this.mPromise.reject("distance", data.getStringExtra("message"));

@@ -1,4 +1,4 @@
-package com.hwrecognisation.commons;
+package com.hwrecognisation.saralsdk.commons;
 
 import org.opencv.core.Rect;
 

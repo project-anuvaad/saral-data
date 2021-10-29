@@ -1,9 +1,9 @@
-package com.hwrecognisation.opencv;
+package com.hwrecognisation.saralsdk.opencv;
 
 import android.util.Log;
 
-import com.hwrecognisation.commons.BoxRect;
-import com.hwrecognisation.commons.CVOperations;
+import com.hwrecognisation.saralsdk.commons.BoxRect;
+import com.hwrecognisation.saralsdk.commons.CVOperations;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExtractTableRows {
-    private static final String  TAG                = "OCRApp::TableROIs";
+    private static final String  TAG                = "SrlSDK::TableROIs";
     private boolean DEBUG                           = false;
     private static final int NUM_OF_POINTS          = 24;
     private static final Scalar RED_COLOR           = new Scalar(255.0, 0.0, 0.0);
@@ -71,6 +71,7 @@ public class ExtractTableRows {
         Log.d(TAG, "rect3: " + sorted_rects3.toString());
 
         List<BoxRect> boxes                 = BoxRect.getBoxRects(sorted_rects2, sorted_rects3);
+
         Log.d(TAG, "Numbers of column boxes: " + boxes.size() + " boxes : " + boxes.toString());
         drawPOIArea(frameImage, image, boxes, GREEN_COLOR, topLeft);
 

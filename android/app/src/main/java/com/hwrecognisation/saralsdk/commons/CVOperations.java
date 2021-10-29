@@ -1,4 +1,4 @@
-package com.hwrecognisation.commons;
+package com.hwrecognisation.saralsdk.commons;
 
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
@@ -15,13 +15,15 @@ import org.opencv.imgproc.Imgproc;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 public class CVOperations {
-    private static final String  TAG              = "OCRApp::CVOps";
+    private static final String  TAG              = "SrlSDK::CVOps";
 
     public static List<Point> getCirclesPoint(Mat circles) {
         List<Point> points = new ArrayList<Point>();
@@ -71,7 +73,7 @@ public class CVOperations {
 
     public static String saveImage(Mat image, String name, int randomLength, boolean flip) {
         String random       = getAlphaNumericString(randomLength);
-        String filepath     = Environment.getExternalStorageDirectory().getPath() + "/" + name + "_" + random + ".jpg";
+        String filepath     = FileOps.getInstance().getBaseDirectoryPath() + "/" + name + "_" + random + ".jpg";
         byte[] byteArray    = null;
 
         Bitmap resultBitmap = Bitmap.createBitmap(image.cols(), image.rows(), Bitmap.Config.ARGB_8888);
@@ -98,11 +100,13 @@ public class CVOperations {
         } catch (java.io.IOException e) {
             Log.d(TAG, "Image saving failed", e);
         }
+        Log.d(TAG, "Saving file: " + filepath);
+
         return filepath;
     }
 
     public static void deleteAllImages() {
-        File dir = Environment.getExternalStorageDirectory();
+        File dir = FileOps.getInstance().getBaseDirectory();
         if (dir.isDirectory()) {
             String[] children = dir.list();
             for (int i = 0; i < children.length; i++) {
@@ -111,11 +115,6 @@ public class CVOperations {
                     new File(dir, filename).delete();
             }
         }
-    }
-
-    public static String getImageFilePath(String filename) {
-        String filepath     = Environment.getExternalStorageDirectory().getPath() + "/" + filename;
-        return filepath;
     }
 
     public static List<Rect> sortRects(List<Rect> rects) {

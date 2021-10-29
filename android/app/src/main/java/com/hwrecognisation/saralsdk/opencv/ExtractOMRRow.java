@@ -1,8 +1,8 @@
-package com.hwrecognisation.opencv;
+package com.hwrecognisation.saralsdk.opencv;
 
 import android.util.Log;
 
-import com.hwrecognisation.commons.CVOperations;
+import com.hwrecognisation.saralsdk.commons.CVOperations;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExtractOMRRow {
-    private static final String  TAG                = "OCRApp::OMR";
+    private static final String  TAG                = "SrlSDK::OMR";
     private boolean DEBUG                           = false;
     private static final int NUM_OF_CONTOURS        = 6;
     private static final Scalar RED_COLOR           = new Scalar(255.0, 0.0, 0.0);

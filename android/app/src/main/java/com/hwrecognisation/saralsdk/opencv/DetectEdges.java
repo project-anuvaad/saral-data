@@ -1,4 +1,4 @@
-package com.hwrecognisation.opencv;
+package com.hwrecognisation.saralsdk.opencv;
 
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DetectEdges {
-    private static final String  TAG                = "OCRApp::Edge";
+    private static final String  TAG                = "SrlSDK::Edge";
     private boolean DEBUG                           = false;
     private static final Scalar RED_COLOR           = new Scalar(255.0, 0.0, 0.0);
 

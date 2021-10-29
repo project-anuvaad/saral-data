@@ -204,6 +204,9 @@ class MyScanContainer extends Component {
                     let subject = filteredData.response.subject;
                     RNOpenCvCameraModel.openScanCamera(JSON.stringify(uniqStudentsList), scanTypeInt)
                         .then(data => {
+                            console.log(data);
+
+                            
                             let base64Data = []
                             if (scanTypeInt == 2) {
 

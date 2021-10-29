@@ -1,8 +1,8 @@
-package com.hwrecognisation.opencv;
+package com.hwrecognisation.saralsdk.opencv;
 
 import android.util.Log;
 
-import com.hwrecognisation.commons.CVOperations;
+import com.hwrecognisation.saralsdk.commons.CVOperations;
 
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExtractRollRow {
-    private static final String  TAG                = "OCRApp::Roll";
+    private static final String  TAG                = "SrlSDK::Roll";
     private boolean DEBUG                           = false;
     private static final int NUM_OF_CONTOURS        = 7;
     private static final Scalar RED_COLOR           = new Scalar(255.0, 0.0, 0.0);

@@ -1,8 +1,8 @@
-package com.hwrecognisation.opencv;
+package com.hwrecognisation.saralsdk.opencv;
 
 import android.util.Log;
 
-import com.hwrecognisation.commons.CVOperations;
+import com.hwrecognisation.saralsdk.commons.CVOperations;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DetectCircles {
-    private static final String  TAG                = "OCRApp::Circles";
+    private static final String  TAG                = "SrlSDK::Circles";
     private boolean DEBUG                           = false;
     private static final Scalar RED_COLOR           = new Scalar(255.0, 0.0, 0.0);
     private String mShadedIndex                     = null;
@@ -42,10 +42,11 @@ public class DetectCircles {
             if (DEBUG) {
                 Imgproc.putText(frameImage, mShadedIndex,
                         new Point(tableTopLeft.x+rowTopLeft.x, tableTopLeft.y+rowTopLeft.y),
-                        Imgproc.COLOR_RGBA2BGR,
+                        Imgproc.COLOR_RGB2BGR,
                         1,
                         RED_COLOR);
             }
+
             return true;
         }
 

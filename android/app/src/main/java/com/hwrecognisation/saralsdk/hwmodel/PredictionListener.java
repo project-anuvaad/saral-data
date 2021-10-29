@@ -1,4 +1,4 @@
-package com.hwrecognisation;
+package com.hwrecognisation.saralsdk.hwmodel;
 
 public interface PredictionListener {
     public void OnPredictionSuccess(int digit, float confidence, String id);
