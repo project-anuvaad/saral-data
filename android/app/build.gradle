@@ -122,8 +122,8 @@ def jscFlavor = 'org.webkit:android-jsc:+'
  */
 def enableHermes = project.ext.react.get("enableHermes", false);
 
-def appVersionCode = 21
-def appVersionName = "3.1.5"
+def appVersionCode = 22
+def appVersionName = "3.1.6"
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
