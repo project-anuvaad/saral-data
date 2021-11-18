@@ -121,14 +121,19 @@ public class SaralSDKOpenCVScannerActivity extends ReactActivity implements Came
             public void OnPredictionSuccess(int digit, float confidence, String id) {
                 Log.d(TAG, "predicted digit:" + digit + " unique id:" + id + " confidence:" + confidence);
                 mTotalClassifiedCount++;
-                try {
-                    JSONObject result = new JSONObject();
-                    result.put("prediction", new Integer(digit));
-                    result.put("confidence", new Double(confidence));
-                    mPredictedDigits.put(id, result.toString());
-                } catch (JSONException e) {
-                    Log.e(TAG, "unable to create prediction object");
-                }
+                 try {
+                     JSONObject result = new JSONObject();
+                    if(digit != 10 ) {
+                        result.put("prediction", new Integer(digit));
+                        result.put("confidence", new Double(confidence));
+                        }else{
+                            result.put("prediction", new Integer(0));
+                            result.put("confidence", new Double(0));
+                        }
+                        mPredictedDigits.put(id, result.toString());
+                    } catch (JSONException e) {
+                        Log.e(TAG, "unable to create prediction object");
+                    }
 
                 if (mIsClassifierRequestSubmitted && mTotalClassifiedCount >= mPredictedDigits.size()) {
                     mIsScanningComplete     = true;
