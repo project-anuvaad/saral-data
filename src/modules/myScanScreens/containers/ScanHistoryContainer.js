@@ -623,6 +623,7 @@ class ScanHistoryContainer extends Component {
                         savedTelemetryLength: savedTelemetryLength + 10,
                         currentSavingTelemetry: telemetryArr
                     })
+                    console.log("telemetryArrr",telemetryArr);
                     let apiObj = new SaveTelemetryAction(telemetryArr, token);
                     this.props.APITransport(apiObj)
                 })
