@@ -220,7 +220,7 @@ class MyScanContainer extends Component {
                                         response += imgArr[i] + ","
                                     }
                                 }
-                                tableData.push(JSON.parse(response))
+                                tableData.push(JSON.parse(data))
 
 
                                 let tempTable = tableData[0].table
