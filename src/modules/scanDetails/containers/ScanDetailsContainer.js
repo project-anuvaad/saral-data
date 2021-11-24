@@ -504,7 +504,7 @@ class ScanDetailsContainer extends Component {
                             fieldType: 'roll',
                             index: i.toString(),
                             predictedDigit: text.charAt(i),
-                            base64: telemetryData[i]
+                            base64: telemetryData[0][i]
                         })
                     }
                 }

@@ -237,7 +237,7 @@ class MyScanContainer extends Component {
                                         }
                                         marksArr.push(marksObj)
                                     }
-                                    else if (i > 6 && i <= 13) {
+                                    else if (i > 12 && i <= 13) {
                                         if (loginData.storeTrainingData) {
                                             base64Data.push(tempTable[i][i])
                                         }
