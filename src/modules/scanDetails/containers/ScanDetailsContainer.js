@@ -65,6 +65,7 @@ class ScanDetailsContainer extends Component {
             predictedMarksArr: [],
             wrongPredictedTelemetryRoll: [],
             wrongPredictedTelemetryMarks: [],
+            marksTelemetryData: []
         }
         this.onBack = this.onBack.bind(this)
     }
@@ -99,6 +100,11 @@ class ScanDetailsContainer extends Component {
                     telemetryData: params.base64Data,
                     wrongPredictedTelemetryRoll: [],
                     wrongPredictedTelemetryMarks: []
+                })
+            }
+            if (params && params.marksBase64Data && params.marksBase64Data.length > 0) {
+                this.setState({
+                    marksTelemetryData: params.marksBase64Data
                 })
             }
 
@@ -530,7 +536,7 @@ class ScanDetailsContainer extends Component {
         this.setState({ tabIndex: value, nextBtnClick: false })
     }
     onSummaryClick = (marksArray) => {
-        const { studentObj, finalOCR, examTakenAtIndex } = this.state
+        const { studentObj, finalOCR, examTakenAtIndex, marksTelemetryData } = this.state
         let valid = true
         for (let i = 0; i < marksArray.length; i++) {
             if (marksArray[i].earned[0] == '' || isNaN(marksArray[i].earned[0]) || parseFloat(marksArray[i].earned[0]) > parseFloat(marksArray[i].maximum)) {
@@ -550,6 +556,23 @@ class ScanDetailsContainer extends Component {
             this.state.wrongPredictedTelemetryRoll.forEach(element => {
                 finalTelemetryData.push(element)
             });
+            
+
+            marksTelemetryData.forEach((el,i)=>{                
+                el.forEach((value,j)=>{
+                    let obj = {
+                        "examType": "PAT",
+                        "fieldType": "marks",
+                        "index": j+1,
+                        "predictedDigit": "0",
+                        "base64": ""
+                    }
+                    obj.base64 = value
+                    finalTelemetryData.push(obj)
+                })
+            })
+
+
             this.state.wrongPredictedTelemetryMarks.forEach(element => {
                 finalTelemetryData.push(element)
             });

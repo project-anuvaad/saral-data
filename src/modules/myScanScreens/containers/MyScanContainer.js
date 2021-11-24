@@ -207,6 +207,8 @@ class MyScanContainer extends Component {
                             console.log(data);
                             
                             let base64Data = []
+                            let marksBase64Data = []
+
                             if (scanTypeInt == 2) {
 
                                 let imgArr = data.split(',');
@@ -241,6 +243,9 @@ class MyScanContainer extends Component {
                                         if (loginData.storeTrainingData) {
                                             base64Data.push(tempTable[i][i])
                                         }
+                                    }
+                                    else if (i>13 && i<=14 && loginData.storeTrainingData) {
+                                        marksBase64Data.push(tempTable[i][i])
                                     }
                                 }
                                 studentObj.marks = marksArr
@@ -277,7 +282,7 @@ class MyScanContainer extends Component {
 
 
                             this.setState({ isLoading: false, iconShow: false, loaderText: '' })
-                            this.props.navigation.navigate('scanDetails', { oldBrightness: this.state.oldBrightness, base64Data: base64Data })
+                            this.props.navigation.navigate('scanDetails', { oldBrightness: this.state.oldBrightness, base64Data: base64Data,marksBase64Data : marksBase64Data })
 
                         })
                         .catch((code, errorMessage) => {

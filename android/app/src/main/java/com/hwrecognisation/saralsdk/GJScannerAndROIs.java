@@ -52,12 +52,47 @@ public class GJScannerAndROIs {
         JSONObject resp             = new JSONObject();
         JSONArray respTable         = new JSONArray();
         JSONArray respTrainigDataSet = new JSONArray();
+        JSONArray marksTrainigData = new JSONArray();
+        JSONArray respTrainigDataSet1,respTrainigDataSet2,respTrainigDataSet3,respTrainigDataSet4,respTrainigDataSet5;
+
         try {
             JSONObject layoutROI        = layoutConfigsResult.getJSONObject("roi");
             JSONObject layoutObject     = layoutROI.getJSONObject("layout");
             JSONArray  cells            = layoutObject.getJSONArray("cells");
 
             respTrainigDataSet = cells.getJSONObject(0).getJSONArray("trainingDataSet");
+
+            respTrainigDataSet1 = cells.getJSONObject(1).getJSONArray("trainingDataSet");
+            respTrainigDataSet2 = cells.getJSONObject(2).getJSONArray("trainingDataSet");
+            respTrainigDataSet3 = cells.getJSONObject(3).getJSONArray("trainingDataSet");
+            respTrainigDataSet4 = cells.getJSONObject(4).getJSONArray("trainingDataSet");
+            respTrainigDataSet5 = cells.getJSONObject(5).getJSONArray("trainingDataSet");
+
+            try {
+                for (int i = 0; i < respTrainigDataSet1.length(); i++) {
+                    String jsonObject = respTrainigDataSet1.getString(i);
+                    marksTrainigData.put(jsonObject);
+                }
+                for (int i = 0; i < respTrainigDataSet2.length(); i++) {
+                    String jsonObject = respTrainigDataSet2.getString(i);
+                    marksTrainigData.put(jsonObject);
+                }
+                for (int i = 0; i < respTrainigDataSet3.length(); i++) {
+                    String jsonObject = respTrainigDataSet3.getString(i);
+                    marksTrainigData.put(jsonObject);
+                }
+                for (int i = 0; i < respTrainigDataSet4.length(); i++) {
+                    String  jsonObject = respTrainigDataSet4.getString(i);
+                    marksTrainigData.put(jsonObject);
+                }
+                for (int i = 0; i < respTrainigDataSet5.length(); i++) {
+                    String jsonObject = respTrainigDataSet5.getString(i);
+                    marksTrainigData.put(jsonObject);
+                }
+            }catch(JSONException e) {
+                    e.printStackTrace();
+                }
+
             for (int i = 0; i < cells.length(); i++) {
                 StringBuffer sb         = new StringBuffer();
                 JSONArray cellROIs      = cells.getJSONObject(i).getJSONArray("rois");
@@ -131,6 +166,11 @@ public class GJScannerAndROIs {
             JSONObject res13 = new JSONObject();
             res13.put("13", respTrainigDataSet);
             respTable.put(res13);
+
+            JSONObject res14 = new JSONObject();
+            res14.put("14", marksTrainigData);
+            respTable.put(res14);
+
             resp.put("table", respTable);
         } catch (JSONException e) {
             Log.e(TAG, "Unable to parse Saral specs, failed to create response");
