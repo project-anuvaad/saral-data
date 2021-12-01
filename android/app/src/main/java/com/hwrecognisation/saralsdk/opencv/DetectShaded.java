@@ -48,6 +48,39 @@ public class DetectShaded {
         return pixel;
     }
 
+    public boolean isOMRFilled(Mat imageMat, int top, int left, int bottom, int right)
+    {
+        boolean isOMRFilled = false;
+        byte _BLACK_PIXEL_THRESHOLD = 100;
+        byte _OMR_FILLED_THRESHOULD = 100;
+        Mat gray                            = new Mat();
+        Imgproc.cvtColor(imageMat, gray, Imgproc.COLOR_BGR2GRAY);
+
+
+        byte [] imageArray = new byte[(int) (gray.total() * gray.channels())];
+        gray.get(0,0,imageArray);
+
+        int width = gray.width();
+        int height = gray.height();
+        int num_pixels = (int) gray.total();
+        int channels = gray.channels();
+        int darkPixelCount =0;
+        double [] pixel = new double[3];
+        for (int r = 0; r < height; r++) {
+            for (int c = 0; c < width; c++) {
+                pixel = gray.get(r,c);
+                if(pixel[0]<=_BLACK_PIXEL_THRESHOLD)
+                {
+                    darkPixelCount++;
+                }
+            }
+        }
+
+        Log.d(TAG, "OMR Dark Pixels Count:: "+darkPixelCount+"num_pixels:: "+num_pixels);
+        isOMRFilled = darkPixelCount >= _OMR_FILLED_THRESHOULD;
+        return isOMRFilled;
+    }
+
     public Mat getROIMat(Mat image, int top, int left, int bottom, int right) {
         Rect rect           = new Rect(left, top, right - left, bottom - top);
         Mat croppedImage    = new Mat(image.clone(), rect);
