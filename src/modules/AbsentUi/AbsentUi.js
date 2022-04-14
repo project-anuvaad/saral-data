@@ -4,7 +4,7 @@ import { apkVersion } from '../../configs/config';
 
 
 //storage
-import { getStudentsExamData, getLoginCred, setAbsentStudentDataIntoAsync, setTotalStudent } from '../../utils/StorageUtils';
+import { getStudentsExamData, getLoginCred, setAbsentStudentDataIntoAsync, setTotalStudent, getScanData } from '../../utils/StorageUtils';
 
 import Strings from '../../utils/Strings';
 
@@ -161,7 +161,7 @@ const AbsentUi = ({
     }, [saveAbsentStudent, loginDataRes])
 
 
-    const onMarkPresentAbsent = (data) => {
+    const onMarkPresentAbsent = async(data) => {
         let createdTime = new Date()
         let obj = {
             examId: examDataObj.examId,
@@ -174,6 +174,15 @@ const AbsentUi = ({
         }
         let isAlreadyMarkedAbsent = _.find(fetchedAbsentList, (o) => o.AadhaarUID == data.aadhaarUID)
         let scanedData = getScanStatusData.data.length > 0 ? JSON.parse(getScanStatusData.data) : [];
+        let savedDataInLocal = await getScanData();
+        let isAlreadySavedInLocal = ''
+        if (savedDataInLocal != null) {
+             isAlreadySavedInLocal = savedDataInLocal.filter((o) => {
+                if (o.student.aadhaarUID == data.aadhaarUID) {
+                    return true
+                }
+            } )
+        }
         if (data.isAbsent) {
             data.isAbsent = false
             if (isAlreadyMarkedAbsent) {
@@ -188,7 +197,7 @@ const AbsentUi = ({
         } else if (!data.isAbsent) {
             let scan = scanedData.length > 0 ? scanedData : []
             const checkIsScanned = scan.length > 0 && scanedData[0].EntryCompletedStudents.filter((o) => o.AadhaarUID === data.aadhaarUID);
-            if (checkIsScanned.length > 0) {
+            if (checkIsScanned.length > 0 || isAlreadySavedInLocal.length > 0) {
                 Alert.alert("student can't be mark as absent once scanned !")
             }
             else {

@@ -50,12 +50,12 @@ class WelcomeScreenContainer extends Component {
       }
 
     componentMountCall = async() => {
-        let updateNeeded = await VersionCheck.needUpdate();
-        if (updateNeeded && updateNeeded.isNeeded) {
-            this.onAppUpdateCheck()
-        } else {
+        // let updateNeeded = await VersionCheck.needUpdate();
+        // if (updateNeeded && updateNeeded.isNeeded) {
+        //     this.onAppUpdateCheck()
+        // } else {
             this.loginUser()
-        }
+        // }
     }
 
     loginUser = async () => {
@@ -196,10 +196,10 @@ class WelcomeScreenContainer extends Component {
                                 ])
                             }
                             else if (appUpdateData.data.updateType.toUpperCase() == 'FORCE') {
-                                Alert.alert(Strings.message_text, Strings.force_update_available, [
-                                    { 'text': Strings.no_btn_text, style: 'cancel', onPress: () => this.onCancel() },
-                                    { 'text': Strings.yes_btn_text, onPress: () => this.onUpdateClick() }
-                                ])
+                                // Alert.alert(Strings.message_text, Strings.force_update_available, [
+                                //     { 'text': Strings.no_btn_text, style: 'cancel', onPress: () => this.onCancel() },
+                                //     { 'text': Strings.yes_btn_text, onPress: () => this.onUpdateClick() }
+                                // ])
                             }
                         }
                         else {
