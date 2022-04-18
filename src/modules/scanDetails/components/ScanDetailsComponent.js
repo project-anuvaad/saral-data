@@ -124,7 +124,7 @@ class ScanDetailsComponent extends Component {
         const { edit, studentId, testDate, stdErr, testIds, testId, testDateErr, errTestId, errExamTakenAt, examTakenAtIndex, examTakenAtArr, examTakenAt, scanType, loginDataRes } = this.props
         return (
             <View>
-                {scanType == SCAN_TYPES.SAT_TYPE && loginDataRes && loginDataRes.data && loginDataRes.data.storeExamTakenAtInfo &&
+                {/* {scanType == SCAN_TYPES.SAT_TYPE && loginDataRes && loginDataRes.data && loginDataRes.data.storeExamTakenAtInfo &&
                 <View style={styles.fieldContainerStyle}>
                     <View style={{ flexDirection: 'row' }}>
                         <Text style={[styles.labelTextStyle]}>{Strings.exam_taken_at}</Text>
@@ -139,7 +139,7 @@ class ScanDetailsComponent extends Component {
                         selectedData={examTakenAt}
                         icon={examTakenAtArr.length == 1 ? null : require('../../../assets/images/Arrow_Right.png')}
                     />
-                </View>}
+                </View>} */}
                 <TextField
                     labelText={Strings.student_id}
                     errorField={stdErr != '' || isNaN(studentId)}

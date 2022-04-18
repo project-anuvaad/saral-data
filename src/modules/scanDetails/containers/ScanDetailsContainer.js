@@ -339,11 +339,11 @@ class ScanDetailsContainer extends Component {
 
     onNext = () => {
         const { filteredData, loginDataRes } = this.props
-        let scanType = filteredData.response.scanType
-        if(loginDataRes && loginDataRes.data && loginDataRes.data.storeExamTakenAtInfo && scanType == SCAN_TYPES.SAT_TYPE && this.state.examTakenAtIndex == -1) {
-            this.setState({ isLoading: false, stdErr: '', examErr: '', errExamTakenAt: Strings.please_select_exam_taken_at, nextBtnClick: false, testDateErr: '' })
-            return 
-        }
+        // let scanType = filteredData.response.scanType
+        // if(loginDataRes && loginDataRes.data && loginDataRes.data.storeExamTakenAtInfo && scanType == SCAN_TYPES.SAT_TYPE && this.state.examTakenAtIndex == -1) {
+        //     this.setState({ isLoading: false, stdErr: '', examErr: '', errExamTakenAt: Strings.please_select_exam_taken_at, nextBtnClick: false, testDateErr: '' })
+        //     return 
+        // }
         if(!this.state.studentIdValid) {
             this.validateStudentId(this.state.studentId)
         }
@@ -576,7 +576,6 @@ class ScanDetailsContainer extends Component {
             });    
             
             obj.student.questions = questionsArr
-            obj.student.examTakenAt = examTakenAtIndex != -1 ? examTakenAtIndex+1 : null
             this.setState({
                 saveDataObj: obj,
                 totalMarks: totalMarks.toFixed(2),
